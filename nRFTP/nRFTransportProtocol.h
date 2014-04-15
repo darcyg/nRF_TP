@@ -8,7 +8,7 @@
 #include <IMessageHandler.h>
 #include "Message/RouteMessage.h"
 
-#define DEBUG_NRFTP 1
+#define DEBUG_NRFTP 0
 
 namespace nRFTP {
 
@@ -34,7 +34,7 @@ namespace nRFTP {
       IPhysicalLayer* physicalLayer;
       IMessageHandler* messageHandler;
 
-      uint8_t readBuffer[24];
+      uint8_t readBuffer[Message::SIZE];
       uint16_t readedType;
 
       unsigned long waitingForPingResponse;

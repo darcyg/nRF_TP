@@ -20,10 +20,6 @@ namespace nRFTP {
     dest.putWord(destAddress);
     dest.putWord(messageId);
     dest.putByte(fragmentOffset);
-#if DEBUG_HEADER == 1
-
-    Serial.print("copy to buffer fragment: "); Serial.println(fragmentOffset, BIN);
-#endif
     dest.putUint32_t(crc);
   }
 

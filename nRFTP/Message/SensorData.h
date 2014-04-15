@@ -15,7 +15,7 @@ namespace nRFTP{
 	class SensorData : public Message
     {
 		public:
-			static const uint8_t TYPE_TEMP = 0;
+			static const uint8_t TYPE_TEMPERATURE = 0;
 			static const uint8_t TYPE_LIGHT = 1;
 			static const uint8_t TYPE_BATTERY = 2;
 			static const uint8_t TYPE_CURRENT = 3;

@@ -12,6 +12,8 @@ namespace nRFTP {
       void putWord(const uint16_t& val);
       void putUint32_t(const uint32_t& val);
 
+      void reset();
+
       uint8_t getByte(void);
       uint16_t getWord(void);
       uint32_t getUint32_t(void);
