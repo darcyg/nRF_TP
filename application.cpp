@@ -6,7 +6,11 @@
 #include "Message/PingMessage.h"
 #include <IMessageHandler.h>
 
+<<<<<<< HEAD
 #define SELF_ADDRESS 11111
+=======
+#define SELF_ADDRESS 33333
+>>>>>>> 27b8b5c2e8ffd85ea62e5c626271ededec41058a
 
 using namespace nRFTP;
 
@@ -50,7 +54,9 @@ void loop() {
 
   if ( Serial.available() )
   {
-    char c = toupper(Serial.read());
-    test_nRFTP.ping(1235);
+	delay(10);
+	char addr[5];
+    Serial.readBytes(addr, 5);
+    test_nRFTP.ping((uint16_t)atoi(addr));
   }
 }
