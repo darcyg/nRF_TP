@@ -6,11 +6,7 @@
 #include "Message/PingMessage.h"
 #include <IMessageHandler.h>
 
-<<<<<<< HEAD
-#define SELF_ADDRESS 11111
-=======
 #define SELF_ADDRESS 33333
->>>>>>> 27b8b5c2e8ffd85ea62e5c626271ededec41058a
 
 using namespace nRFTP;
 
