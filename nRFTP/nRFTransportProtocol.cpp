@@ -113,6 +113,8 @@ namespace nRFTP {
             break;
 
             case Message::TYPE_ROUTE:
+            	RouteMessage pingMessage(bb);
+            	if()
             break;
 
             case Message::TYPE_SENSORDATA:
