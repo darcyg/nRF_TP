@@ -3,7 +3,7 @@
 #include "Util/Util.h"
 #include "SPI.h"
 #include "Message/Message.h"
-#include <PingMessage.h>
+#include "Message/PingMessage.h"
 #include <IMessageHandler.h>
 
 #define SELF_ADDRESS 12345
