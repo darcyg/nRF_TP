@@ -1,1 +1,6 @@
-/Release
+Release/
+spec.d
+.project
+.cproject
+.settings/
+build.log
