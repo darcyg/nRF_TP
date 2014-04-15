@@ -1,0 +1,29 @@
+#ifndef nRFTP_MESSAGE
+#define nRFTP_MESSAGE
+
+#include <arduino.h>
+#include "Header.h"
+
+namespace nRFTP {
+
+  class Message{
+    public:
+      static const uint8_t TYPE_ROUTE_REQUEST = 0;
+      static const uint8_t TYPE_PING = 1;
+      static const uint8_t TYPE_SENSORDATA = 2;
+
+      static const uint8_t SIZE = 24;
+
+      Message(ByteBuffer& src);
+      Message(uint16_t _srcAddress, uint16_t _destAddress, uint8_t _type);
+
+      static uint8_t getTypeFromReadBuffer(uint8_t* buffer);
+
+      virtual void copyToByteBuffer(ByteBuffer& dest);
+
+      Header header;
+  };
+
+}
+
+#endif
