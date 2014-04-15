@@ -112,7 +112,7 @@ namespace nRFTP {
               }
             break;
 
-            case Message::TYPE_ROUTE_REQUEST:
+            case Message::TYPE_ROUTE:
             break;
 
             case Message::TYPE_SENSORDATA:

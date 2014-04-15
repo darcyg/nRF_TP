@@ -8,7 +8,7 @@ namespace nRFTP{
     }
 
     RouteRequestMessage::RouteRequestMessage(uint16_t _srcAddress, uint16_t _destAddress)
-    : Message(_srcAddress,_destAddress,Message::TYPE_ROUTE_REQUEST), fromAddress(_srcAddress){
+    : Message(_srcAddress,_destAddress,Message::TYPE_ROUTE), fromAddress(_srcAddress){
     }
 
     void RouteRequestMessage::copyToByteBuffer(ByteBuffer& dest){

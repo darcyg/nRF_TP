@@ -16,7 +16,7 @@ class nRFTPExample : public IMessageHandler {
           case nRFTP::Message::TYPE_PING:
             break;
 
-          case Message::TYPE_ROUTE_REQUEST:
+          case Message::TYPE_ROUTE:
             break;
 
           case Message::TYPE_SENSORDATA:
