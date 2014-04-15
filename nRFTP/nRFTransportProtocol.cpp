@@ -5,7 +5,8 @@ namespace nRFTP {
 	  nRFTransportProtocol::nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address, IMessageHandler* _messageHandler)
       : physicalLayer(_physicalLayer),
         address(_address),
-        messageHandler(_messageHandler){
+        messageHandler(_messageHandler),
+        waitingForPingResponse(0){
       }
 
       void nRFTransportProtocol::begin(void){
@@ -18,15 +19,15 @@ namespace nRFTP {
       }
 
 
-        void nRFTransportProtocol::ping(uint16_t destAddress){
+      void nRFTransportProtocol::ping(uint16_t destAddress){
         PingMessage pingMessage(address, destAddress);
-        uint8_t sendBuffer[Message::SIZE];
-        ByteBuffer bb(sendBuffer);
+        ByteBuffer bb(readBuffer);
         pingMessage.copyToByteBuffer(bb);
 
         waitingForPingResponse = millis();
         currentlyPingingAddress = destAddress;
 
+        bb.reset();
         bool res = sendMessage(bb, destAddress);
       }
 
@@ -76,6 +77,7 @@ namespace nRFTP {
                   waitingForPingResponse = 0;
                   currentlyPingingAddress = 0;
                 } else {
+                  bb.reset();
                   messageHandler->handleMessage(bb, readedType);
                 }
               }
@@ -101,13 +103,16 @@ namespace nRFTP {
 
           switch (readedType){
             case Message::TYPE_PING:
+
               if (waitingForPingResponse == 0){
+
                 PingMessage pingMessage(bb);
                 uint16_t tmp = pingMessage.header.srcAddress;
                 pingMessage.header.srcAddress = pingMessage.header.destAddress;
                 pingMessage.header.destAddress = tmp;
+                bb.reset();
                 pingMessage.copyToByteBuffer(bb);
-                delay(20);
+                delay(100);
                 sendMessage(bb, pingMessage.header.destAddress);
               }
             break;
@@ -130,6 +135,7 @@ namespace nRFTP {
           }
 
           if (forwardToApp){
+          	bb.reset();
             messageHandler->handleMessage(bb, readedType);
           }
         }

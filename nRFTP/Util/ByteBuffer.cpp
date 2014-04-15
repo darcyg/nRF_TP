@@ -2,8 +2,11 @@
 
 namespace nRFTP {
 
-  ByteBuffer::ByteBuffer(uint8_t* _data) : data(_data){
-    pos = 0;
+  ByteBuffer::ByteBuffer(uint8_t* _data) : data(_data), pos(0){
+  }
+
+  void ByteBuffer::reset(void){
+	  pos=0;
   }
 
   void ByteBuffer::putByte(const uint8_t& val){
