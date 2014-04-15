@@ -6,6 +6,7 @@
 #include "Util/Util.h"
 #include "Message/PingMessage.h"
 #include <IMessageHandler.h>
+#include "Message/RouteMessage.h"
 
 #define DEBUG_NRFTP 1
 
