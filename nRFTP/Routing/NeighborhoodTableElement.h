@@ -8,6 +8,8 @@
 #ifndef NEIGHBORHOODTABLEELEMENT_H_
 #define NEIGHBORHOODTABLEELEMENT_H_
 
+#include <arduino.h>
+
 namespace nRFTP {
 
 	class NeighborhoodTableElement
