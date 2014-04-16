@@ -73,8 +73,8 @@ namespace nRFTP {
                   h.printHeader();
 #endif // DEBUG_NRFTP
                   messageHandler->pingResponseArrived((uint16_t)(millis() - waitingForPingResponse), currentlyPingingAddress );
-                  waitingForPingResponse = 0;
-                  currentlyPingingAddress = 0;
+                  //waitingForPingResponse = 0;
+                  //currentlyPingingAddress = 0;
                 } else {
                   messageHandler->handleMessage(bb, readedType);
                 }
@@ -107,7 +107,6 @@ namespace nRFTP {
                 pingMessage.header.srcAddress = pingMessage.header.destAddress;
                 pingMessage.header.destAddress = tmp;
                 pingMessage.copyToByteBuffer(bb);
-                delay(20);
                 sendMessage(bb, pingMessage.header.destAddress);
                 bb.reset();
               }

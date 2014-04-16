@@ -120,7 +120,6 @@ void loop() {
 	delay(3);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    //transportProtocol.ping((uint16_t)atoi(addr));
-    transportProtocol.ping(BROADCAST_ADDRESS);
+    transportProtocol.ping((uint16_t)atoi(addr));
   }
 }
