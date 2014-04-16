@@ -33,7 +33,7 @@ class SensorNetworkMessageHandler : public IMessageHandler {
           case Message::TYPE_SENSORDATA:
           {
 				SensorData sensorData(bb);
-				if(Message::isResponseFromReadBuffer(bb.data))		//This message is request.
+				if(~Message::isResponseFromReadBuffer(bb.data))		//This message was request.
 				{
 					uint16_t tmp = sensorData.header.srcAddress;
 					sensorData.header.srcAddress = sensorData.header.destAddress;
