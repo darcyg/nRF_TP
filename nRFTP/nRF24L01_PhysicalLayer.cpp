@@ -5,7 +5,7 @@
 
 namespace nRFTP{
 
-  nRF24L01_PhysicalLayer::nRF24L01_PhysicalLayer(uint64_t _address, uint8_t _cepin, uint8_t _cspin) : radio(_cepin, _cspin), address(_address) {
+  nRF24L01_PhysicalLayer::nRF24L01_PhysicalLayer(uint64_t _selfAddress, uint64_t _broadcastAddress, uint8_t _cepin, uint8_t _cspin) : radio(_cepin, _cspin), broadcastAddress(_broadcastAddress), selfAddress(_selfAddress) {
 
   }
 
@@ -13,7 +13,8 @@ namespace nRFTP{
     radio.begin();
     radio.setRetries(15,15);
     radio.setPayloadSize(Message::SIZE);
-    radio.openReadingPipe(0,address);
+    radio.openReadingPipe(0,selfAddress);
+    radio.openReadingPipe(1,broadcastAddress);
     radio.startListening();
 
 #if DEBUG_PL == 1
@@ -30,7 +31,8 @@ namespace nRFTP{
     radio.openWritingPipe(destAddress);
     result = radio.write(buf,len);
 
-    radio.openReadingPipe(0,address);
+    radio.openReadingPipe(0,selfAddress);
+    radio.openReadingPipe(1,broadcastAddress);
     radio.startListening();
 
     return result;
