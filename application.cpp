@@ -66,6 +66,7 @@ class nRFTPExample : public IMessageHandler {
 				SensorData.copyToByteBuffer(bb);
 				delay(20);
 				//sendMessage(bb, SensorData.header.destAddress);
+				bb.reset();
 
             break;
             }
