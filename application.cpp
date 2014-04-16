@@ -22,7 +22,7 @@ nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),U
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
 
 class SensorNetworkMessageHandler : public IMessageHandler {
-    void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type){
+    void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
       switch (type){
           case nRFTP::Message::TYPE_PING:
             break;
@@ -33,7 +33,7 @@ class SensorNetworkMessageHandler : public IMessageHandler {
           case Message::TYPE_SENSORDATA:
           {
 				SensorData sensorData(bb);
-				if(~Message::isResponseFromReadBuffer(bb.data))		//This message was request.
+				if(!isResponse)		//This message was request.
 				{
 					uint16_t tmp = sensorData.header.srcAddress;
 					sensorData.header.srcAddress = sensorData.header.destAddress;

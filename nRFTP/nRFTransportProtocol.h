@@ -36,9 +36,13 @@ namespace nRFTP {
 
       uint8_t readBuffer[Message::SIZE];
       uint16_t readedType;
+      bool readedIsResponse;
 
       unsigned long waitingForPingResponse;
       uint16_t currentlyPingingAddress;
+
+      void checkForPingTimeOut();
+      void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse);
 
   };
 

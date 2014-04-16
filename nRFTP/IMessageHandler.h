@@ -8,7 +8,7 @@ namespace nRFTP {
     class IMessageHandler
     {
         public:
-            virtual void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type) = 0;
+            virtual void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse) = 0;
             virtual void pingResponseArrived(uint16_t milis, uint16_t destAddress) = 0;
     };
 
