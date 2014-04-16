@@ -33,7 +33,7 @@ namespace nRFTP {
       uint8_t getType();
 
       static uint8_t getTypeFromFirstByte( uint8_t firstByteOfReadBuffer);
-      static bool isResponseFromFirstByte( uint8_t firstByteOfReadBuffer, uint8_t flagNum );
+      static bool isResponseFromFirstByte( uint8_t firstByteOfReadBuffer);
 
 #if DEBUG_HEADER == 1
      void printHeader();

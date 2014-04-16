@@ -17,8 +17,8 @@ namespace nRFTP {
     Header::getTypeFromFirstByte(buffer[0]);
   }
 
-  bool Message::isResponseFromReadBuffer( uint8_t* buffer, uint8_t flagNum ){
-	  return Header::isResponseFromFirstByte(buffer[0], flagNum);
+  bool Message::isResponseFromReadBuffer( uint8_t* buffer ){
+	  return Header::isResponseFromFirstByte(buffer[0]);
   }
 
 
