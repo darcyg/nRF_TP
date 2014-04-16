@@ -95,6 +95,7 @@ namespace nRFTP {
 					// bytebuffer reset a copy elõtt, aztán küldés
 					bb.reset();
 					pingMessage.copyToByteBuffer(bb);
+					delay(20);
 					sendMessage(bb, pingMessage.header.destAddress);
 				  }
 				break;
