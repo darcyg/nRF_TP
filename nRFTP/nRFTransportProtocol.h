@@ -8,7 +8,7 @@
 #include <IMessageHandler.h>
 #include "Message/RouteMessage.h"
 
-#define DEBUG_NRFTP 0
+#define DEBUG_NRFTP 1
 
 namespace nRFTP {
 

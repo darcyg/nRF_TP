@@ -8,8 +8,8 @@ namespace nRFTP {
       }
 
       void nRFTransportProtocol::begin(IMessageHandler* _messageHandler){
-        physicalLayer->begin();
-        messageHandler = _messageHandler;
+		physicalLayer->begin();
+		messageHandler = _messageHandler;
       }
 
       void nRFTransportProtocol::requestRouteTo(uint16_t destAddress){
@@ -17,16 +17,16 @@ namespace nRFTP {
       }
 
 
-		void nRFTransportProtocol::ping(uint16_t destAddress){
-		PingMessage pingMessage(address, destAddress);
-		uint8_t sendBuffer[Message::SIZE];
-		ByteBuffer bb(sendBuffer);
-		pingMessage.copyToByteBuffer(bb);
+      void nRFTransportProtocol::ping(uint16_t destAddress){
+		  PingMessage pingMessage(address, destAddress);
+		  uint8_t sendBuffer[Message::SIZE];
+		  ByteBuffer bb(sendBuffer);
+		  pingMessage.copyToByteBuffer(bb);
 
-		waitingForPingResponse = millis();
-		currentlyPingingAddress = destAddress;
+		  waitingForPingResponse = millis();
+		  currentlyPingingAddress = destAddress;
 
-		bool res = sendMessage(bb, destAddress);
+		  bool res = sendMessage(bb, destAddress);
       }
 
 
@@ -61,6 +61,7 @@ namespace nRFTP {
       void nRFTransportProtocol::run(void){
         if (waitingForPingResponse > 0){
             if (millis() - waitingForPingResponse < PingMessage::MAX_WAIT_TIME){
+            	delay(3);
               if (available()){
                 ByteBuffer bb(readBuffer);
                 read(bb);

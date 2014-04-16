@@ -7,7 +7,7 @@
 #include "Message/SensorData.h"
 #include <IMessageHandler.h>
 
-#define SELF_ADDRESS 11111
+#define SELF_ADDRESS 22222
 #define BROADCAST_ADDRESS 0xFFFF
 
 #define LIGHT_PIN A5
@@ -117,9 +117,10 @@ void loop() {
 
   if ( Serial.available() )
   {
-	delay(10);
+	delay(3);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    transportProtocol.ping((uint16_t)atoi(addr));
+    //transportProtocol.ping((uint16_t)atoi(addr));
+    transportProtocol.ping(BROADCAST_ADDRESS);
   }
 }
