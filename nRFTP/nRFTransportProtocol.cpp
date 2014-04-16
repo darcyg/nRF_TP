@@ -18,16 +18,16 @@ namespace nRFTP {
       }
 
 
-        void nRFTransportProtocol::ping(uint16_t destAddress){
-        PingMessage pingMessage(address, destAddress);
-        uint8_t sendBuffer[Message::SIZE];
-        ByteBuffer bb(sendBuffer);
-        pingMessage.copyToByteBuffer(bb);
+		void nRFTransportProtocol::ping(uint16_t destAddress){
+		PingMessage pingMessage(address, destAddress);
+		uint8_t sendBuffer[Message::SIZE];
+		ByteBuffer bb(sendBuffer);
+		pingMessage.copyToByteBuffer(bb);
 
-        waitingForPingResponse = millis();
-        currentlyPingingAddress = destAddress;
+		waitingForPingResponse = millis();
+		currentlyPingingAddress = destAddress;
 
-        bool res = sendMessage(bb, destAddress);
+		bool res = sendMessage(bb, destAddress);
       }
 
 
@@ -97,7 +97,7 @@ namespace nRFTP {
           h.printHeader();
 #endif // DEBUG_NRFTP
 
-          bool forwardToApp = true;
+          bool forwardToApp = false;
 
           switch (readedType){
             case Message::TYPE_PING:
@@ -123,7 +123,10 @@ namespace nRFTP {
             break;
 
             case Message::TYPE_SENSORDATA:
-            break;
+            {
+            	forwardToApp = true;
+            	break;
+            }
 
             default:
             break;
@@ -131,6 +134,7 @@ namespace nRFTP {
 
           if (forwardToApp){
             messageHandler->handleMessage(bb, readedType);
+            forwardToApp = false;
           }
         }
       }

@@ -8,7 +8,12 @@
 #include <IMessageHandler.h>
 
 #define SELF_ADDRESS 11111
-#define LIGHT_PIN A0
+
+#define LIGHT_PIN A5
+#define BATTERY_PIN A4
+#define BATT_MEASURE_EN 6
+#define CURRENT_PIN A3
+#define TEMPERATURE_PIN 2
 
 using namespace nRFTP;
 
@@ -31,18 +36,21 @@ class nRFTPExample : public IMessageHandler {
 				switch(SensorData.sensorType){
 					case SensorData::TYPE_BATTERY:
 					{
+						digitalWrite(BATT_MEASURE_EN, HIGH);
+						SensorData.sensorData = analogRead(BATTERY_PIN); 			// Const = 13.3 / 3.3 = 0.01299;
+						digitalWrite(BATT_MEASURE_EN, LOW);
 						break;
 					}
 
 					case SensorData::TYPE_LIGHT:
 					{
 						SensorData.sensorData = analogRead(LIGHT_PIN);
-
 						break;
 					}
 
 					case SensorData::TYPE_CURRENT:
 					{
+						SensorData.sensorData = analogRead(CURRENT_PIN);			//Const = (3.3 * 1000) / (1024*1.6*51) = 0.03949
 						break;
 					}
 
@@ -86,6 +94,9 @@ void setup() {
   Serial.println("csumpa");
 
   pinMode(LIGHT_PIN, INPUT);
+  pinMode(BATTERY_PIN, INPUT);
+  pinMode(CURRENT_PIN, INPUT);
+  pinMode(BATT_MEASURE_EN, OUTPUT);
 }
 
 void loop() {
