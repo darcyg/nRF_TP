@@ -92,9 +92,12 @@ namespace nRFTP {
 					pingMessage.header.srcAddress = pingMessage.header.destAddress;
 					pingMessage.header.destAddress = tmp;
 
+					pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
+
 					// bytebuffer reset a copy elõtt, aztán küldés
 					bb.reset();
 					pingMessage.copyToByteBuffer(bb);
+
 					delay(20);
 					sendMessage(bb, pingMessage.header.destAddress);
 				  }
