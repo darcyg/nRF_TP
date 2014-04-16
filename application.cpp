@@ -33,44 +33,53 @@ class SensorNetworkMessageHandler : public IMessageHandler {
           case Message::TYPE_SENSORDATA:
           {
 				SensorData sensorData(bb);
-				uint16_t tmp = sensorData.header.srcAddress;
-				sensorData.header.srcAddress = sensorData.header.destAddress;
-				sensorData.header.destAddress = tmp;
+				if(Message::isResponseFromReadBuffer(bb.data))		//This message is request.
+				{
+					uint16_t tmp = sensorData.header.srcAddress;
+					sensorData.header.srcAddress = sensorData.header.destAddress;
+					sensorData.header.destAddress = tmp;
+					sensorData.header.setFlag(sensorData.header.FLAG_IS_RESPONSE, 1);
 
-				switch(sensorData.sensorType){
-					case SensorData::TYPE_BATTERY:
-					{
-						digitalWrite(BATT_MEASURE_EN, HIGH);
-						sensorData.sensorData = analogRead(BATTERY_PIN); 			// Const = 13.3 / 3.3 = 0.01299;
-						digitalWrite(BATT_MEASURE_EN, LOW);
-						break;
+					switch(sensorData.sensorType){
+						case SensorData::TYPE_BATTERY:
+						{
+							digitalWrite(BATT_MEASURE_EN, HIGH);
+							sensorData.sensorData = analogRead(BATTERY_PIN); 			// Const = 13.3 / 3.3 = 0.01299;
+							digitalWrite(BATT_MEASURE_EN, LOW);
+							break;
+						}
+
+						case SensorData::TYPE_LIGHT:
+						{
+							sensorData.sensorData = analogRead(LIGHT_PIN);
+							break;
+						}
+
+						case SensorData::TYPE_CURRENT:
+						{
+							sensorData.sensorData = analogRead(CURRENT_PIN);			//Const = (3.3 * 1000) / (1024*1.6*51) = 0.03949
+							break;
+						}
+
+						case SensorData::TYPE_TEMPERATURE:
+						{
+							// TODO OneWire protocol implement
+							break;
+						}
+
+						default:
+							break;
+
 					}
-
-					case SensorData::TYPE_LIGHT:
-					{
-						sensorData.sensorData = analogRead(LIGHT_PIN);
-						break;
-					}
-
-					case SensorData::TYPE_CURRENT:
-					{
-						sensorData.sensorData = analogRead(CURRENT_PIN);			//Const = (3.3 * 1000) / (1024*1.6*51) = 0.03949
-						break;
-					}
-
-					case SensorData::TYPE_TEMPERATURE:
-					{
-						break;
-					}
-
-					default:
-						break;
-
+					bb.reset();
+					sensorData.copyToByteBuffer(bb);
+					delay(20);
+					transportProtocol.sendMessage(bb, sensorData.header.destAddress);
 				}
-				bb.reset();
-				sensorData.copyToByteBuffer(bb);
-				delay(20);
-				transportProtocol.sendMessage(bb, sensorData.header.destAddress);
+				else
+				{
+					// This message was response, the payload contains the sensor data and type.
+				}
 
 
             break;
