@@ -97,7 +97,7 @@ namespace nRFTP {
           h.printHeader();
 #endif // DEBUG_NRFTP
 
-          bool forwardToApp = false;
+          bool forwardToApp = true;
 
           switch (readedType){
             case Message::TYPE_PING:
@@ -109,6 +109,7 @@ namespace nRFTP {
                 pingMessage.copyToByteBuffer(bb);
                 delay(20);
                 sendMessage(bb, pingMessage.header.destAddress);
+                bb.reset();
               }
             break;
 
@@ -124,7 +125,6 @@ namespace nRFTP {
 
             case Message::TYPE_SENSORDATA:
             {
-            	forwardToApp = true;
             	break;
             }
 
@@ -134,7 +134,6 @@ namespace nRFTP {
 
           if (forwardToApp){
             messageHandler->handleMessage(bb, readedType);
-            forwardToApp = false;
           }
         }
       }
