@@ -2,16 +2,15 @@
 
 namespace nRFTP {
 
-	  nRFTransportProtocol::nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address, IMessageHandler* _messageHandler)
+	  nRFTransportProtocol::nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address)
       : physicalLayer(_physicalLayer),
-        address(_address),
-        messageHandler(_messageHandler){
+        address(_address){
       }
 
-      void nRFTransportProtocol::begin(void){
+      void nRFTransportProtocol::begin(IMessageHandler* _messageHandler){
         physicalLayer->begin();
+        messageHandler = _messageHandler;
       }
-
 
       void nRFTransportProtocol::requestRouteTo(uint16_t destAddress){
 

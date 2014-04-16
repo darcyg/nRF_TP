@@ -14,8 +14,8 @@ namespace nRFTP {
 
   class nRFTransportProtocol{
     public:
-	  nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address, IMessageHandler* _messageHandler);
-      void begin(void);
+	  nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address);
+      void begin(IMessageHandler* _messageHandler);
 
       void requestRouteTo(uint16_t destAddress);
       void ping(uint16_t destAddress);

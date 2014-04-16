@@ -17,7 +17,11 @@
 
 using namespace nRFTP;
 
-class nRFTPExample : public IMessageHandler {
+
+nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),9,10);
+nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
+
+class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type){
       switch (type){
           case nRFTP::Message::TYPE_PING:
@@ -28,29 +32,29 @@ class nRFTPExample : public IMessageHandler {
 
           case Message::TYPE_SENSORDATA:
           {
-				SensorData SensorData(bb);
-				uint16_t tmp = SensorData.header.srcAddress;
-				SensorData.header.srcAddress = SensorData.header.destAddress;
-				SensorData.header.destAddress = tmp;
+				SensorData sensorData(bb);
+				uint16_t tmp = sensorData.header.srcAddress;
+				sensorData.header.srcAddress = sensorData.header.destAddress;
+				sensorData.header.destAddress = tmp;
 
-				switch(SensorData.sensorType){
+				switch(sensorData.sensorType){
 					case SensorData::TYPE_BATTERY:
 					{
 						digitalWrite(BATT_MEASURE_EN, HIGH);
-						SensorData.sensorData = analogRead(BATTERY_PIN); 			// Const = 13.3 / 3.3 = 0.01299;
+						sensorData.sensorData = analogRead(BATTERY_PIN); 			// Const = 13.3 / 3.3 = 0.01299;
 						digitalWrite(BATT_MEASURE_EN, LOW);
 						break;
 					}
 
 					case SensorData::TYPE_LIGHT:
 					{
-						SensorData.sensorData = analogRead(LIGHT_PIN);
+						sensorData.sensorData = analogRead(LIGHT_PIN);
 						break;
 					}
 
 					case SensorData::TYPE_CURRENT:
 					{
-						SensorData.sensorData = analogRead(CURRENT_PIN);			//Const = (3.3 * 1000) / (1024*1.6*51) = 0.03949
+						sensorData.sensorData = analogRead(CURRENT_PIN);			//Const = (3.3 * 1000) / (1024*1.6*51) = 0.03949
 						break;
 					}
 
@@ -63,10 +67,11 @@ class nRFTPExample : public IMessageHandler {
 						break;
 
 				}
-				SensorData.copyToByteBuffer(bb);
-				delay(20);
-				//sendMessage(bb, SensorData.header.destAddress);
 				bb.reset();
+				sensorData.copyToByteBuffer(bb);
+				delay(20);
+				transportProtocol.sendMessage(bb, sensorData.header.destAddress);
+
 
             break;
             }
@@ -82,14 +87,12 @@ class nRFTPExample : public IMessageHandler {
     }
 };
 
-nRFTPExample example;
+SensorNetworkMessageHandler sensorNetworkMessageHandler;
 
-nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),9,10);
-nRFTransportProtocol test_nRFTP(&pLayer, SELF_ADDRESS, &example);
 
 void setup() {
   Serial.begin(57600);
-  test_nRFTP.begin();
+  transportProtocol.begin(&sensorNetworkMessageHandler);
 
   Serial.println(sizeof(Header));
   Serial.println("csumpa");
@@ -101,13 +104,13 @@ void setup() {
 }
 
 void loop() {
-  test_nRFTP.run();
+  transportProtocol.run();
 
   if ( Serial.available() )
   {
 	delay(10);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    test_nRFTP.ping((uint16_t)atoi(addr));
+    transportProtocol.ping((uint16_t)atoi(addr));
   }
 }
