@@ -83,11 +83,12 @@ namespace nRFTP {
             switch (type){
             	case Message::TYPE_PING:
             	  if (waitingForPingResponse != 0 && isResponse){
-                    // válaszra várunk és response, értesíti az appot a messageHandleren keresztül, de nem az általános handleMessageve, hanem a pingResponseArroved-del
+                    // válaszra várunk és response, értesíti az appot a messageHandleren keresztül, de nem az általános handleMessageve, hanem a pingResponseArrived-del
                     messageHandler->pingResponseArrived((uint16_t)(millis() - waitingForPingResponse), currentlyPingingAddress );
 
                     waitingForPingResponse = 0;
                     currentlyPingingAddress = 0;
+                    doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
             	  }
 
 				  if (!isResponse){
@@ -138,6 +139,7 @@ namespace nRFTP {
             messageHandler->pingResponseArrived(PingMessage::TIMEOUT_VAL, currentlyPingingAddress );
             waitingForPingResponse = 0;
             currentlyPingingAddress = 0;
+            doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
           }
       }
 }

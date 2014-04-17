@@ -94,9 +94,8 @@ class SensorNetworkMessageHandler : public IMessageHandler {
     void pingResponseArrived(uint16_t milis, uint16_t destAddress){
         Serial.print("Pinged "); Serial.print(destAddress); Serial.print(": "); Serial.print(milis); Serial.println(" ms");
     }
-};
 
-SensorNetworkMessageHandler sensorNetworkMessageHandler;
+}sensorNetworkMessageHandler;
 
 
 void setup() {
@@ -117,9 +116,14 @@ void loop() {
 
   if ( Serial.available() )
   {
+	int i = 0;
 	delay(3);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    transportProtocol.ping((uint16_t)atoi(addr));
+    if( nRFTransportProtocol::doPing && i < 20){
+    	nRFTransportProtocol::doPing = false;
+    	transportProtocol.ping((uint16_t)atoi(addr));
+    	i++;
+    }
   }
 }

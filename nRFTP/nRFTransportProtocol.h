@@ -29,6 +29,8 @@ namespace nRFTP {
 
       void run(void);
 
+      bool doPing;
+
     protected:
       word address;
       IPhysicalLayer* physicalLayer;
