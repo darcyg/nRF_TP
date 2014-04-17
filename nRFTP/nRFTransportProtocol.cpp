@@ -1,5 +1,7 @@
 #include <nRFTransportProtocol.h>
 
+#define DEBUG_TL 1
+
 namespace nRFTP {
 
 	  nRFTransportProtocol::nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address)
@@ -25,7 +27,10 @@ namespace nRFTP {
 
 		  waitingForPingResponse = millis();
 		  currentlyPingingAddress = destAddress;
-
+#if(DEBUG_TL)
+	Serial.println("Ping request sent!");
+	pingMessage.header.printHeader();
+#endif
 		  bool res = sendMessage(bb, destAddress);
       }
 
@@ -97,7 +102,10 @@ namespace nRFTP {
 					// bytebuffer reset a copy elõtt, aztán küldés
 					bb.reset();
 					pingMessage.copyToByteBuffer(bb);
-
+#if(DEBUG_TL)
+	Serial.println("Ping response sent!");
+	pingMessage.header.printHeader();
+#endif
 					delay(20);
 					sendMessage(bb, pingMessage.header.destAddress);
 				  }
