@@ -15,7 +15,12 @@
 #ifndef __RF24_H__
 #define __RF24_H__
 
+
 #include <RF24_config.h>
+
+#ifdef LINUX_ECLIPSE_ARDUINO
+extern int	printf_P(const char *__fmt, ...);
+#endif
 
 /**
  * Power Amplifier level.
