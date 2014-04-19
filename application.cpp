@@ -6,6 +6,7 @@
 #include "Message/PingMessage.h"
 #include "Message/SensorData.h"
 #include <IMessageHandler.h>
+#include <Routing/RoutingTable.h>
 
 #define SELF_ADDRESS 22222
 #define BROADCAST_ADDRESS 0xFFFF
@@ -20,6 +21,9 @@ using namespace nRFTP;
 
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
+
+RoutingTable *routingTable;
+RoutingTable routingTableArray[RoutingTable::size];
 
 class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
