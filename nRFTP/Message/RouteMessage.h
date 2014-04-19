@@ -11,9 +11,10 @@ namespace nRFTP{
             RouteMessage(ByteBuffer& src);
             RouteMessage(uint16_t _srcAddress, uint16_t _destAddress);
             void copyToByteBuffer(ByteBuffer& dest);
+            uint16_t fromAddress;
 
         protected:
-            uint16_t fromAddress;
+
 
     };
 

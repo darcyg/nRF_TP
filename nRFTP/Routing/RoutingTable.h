@@ -21,10 +21,11 @@ namespace nRFTP {
 			RoutingTable();
 			virtual ~RoutingTable();
 
-			void NewElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved);
-			void DeleteElement(uint16_t destinationAddress);
-			void SendRoutingTable();
-			bool IsElement (uint16_t destinationAddress);
+			void newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved);
+			void deleteElement(uint16_t destinationAddress);
+			void printRoutingTable();							//Csak debughoz kell, sorosra küld.
+			bool isElement (uint16_t destinationAddress);
+			uint16_t getNextHopAddress(uint16_t destinationAddress);
 
 			RoutingTableElement tableElement;
 	};

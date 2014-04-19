@@ -7,6 +7,7 @@
 #include "Message/PingMessage.h"
 #include <IMessageHandler.h>
 #include "Message/RouteMessage.h"
+#include "Routing/RoutingTable.h"
 
 #define DEBUG_NRFTP 1
 
@@ -49,5 +50,7 @@ namespace nRFTP {
   };
 
 }
-
+extern const uint16_t SELF_ADDRESS;
+extern const uint16_t BROADCAST_ADDRESS;
+extern nRFTP::RoutingTable routing;
 #endif

@@ -19,7 +19,7 @@ RoutingTable::~RoutingTable() {
 	// TODO Auto-generated destructor stub
 }
 
-void RoutingTable::NewElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
+void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
 
 	//TODO Ha tele van a tábla, akkor megkeressük a legritkábban használt címet, és annak a helyére írjuk be az újat.
 
@@ -34,7 +34,7 @@ void RoutingTable::NewElement(uint16_t _destinationAddress, uint16_t _nextHop, u
 
 }
 
-void RoutingTable::DeleteElement(uint16_t _destinationAddress) {
+void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 
 	for(int i= 0; i <= RoutingTable::size; i++)
 	{
@@ -61,8 +61,7 @@ void RoutingTable::DeleteElement(uint16_t _destinationAddress) {
 	}
 }
 
-void RoutingTable::SendRoutingTable() {
-	//TODO Jelenleg sorosra küldi ki a táblát, ezt kell majd átalakítani, hogy az nRF-en keresztül menjen el.
+void RoutingTable::printRoutingTable() {
 
 	for(int i = 0; i < RoutingTable::elementNum; i++) {
 		Serial.println("-------- print routing -------");
@@ -75,13 +74,23 @@ void RoutingTable::SendRoutingTable() {
 	}
 }
 
-bool RoutingTable::IsElement(uint16_t _destinationAddress) {
+bool RoutingTable::isElement(uint16_t _destinationAddress) {
 	for(int i = 0; i <= elementNum; i++) {
 		if(routingTable[i].tableElement.destinationAddress == _destinationAddress) {
 			return true;
 		}
 		else
 			return false;
+	}
+}
+
+uint16_t RoutingTable::getNextHopAddress(uint16_t destinationAddress){
+	for(int i=0; i < elementNum; i++)
+	{
+		if(destinationAddress == routingTable[i].tableElement.destinationAddress)
+		{
+			return routingTable[i].tableElement.nextHop;
+		}
 	}
 }
 

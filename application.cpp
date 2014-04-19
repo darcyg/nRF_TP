@@ -8,9 +8,6 @@
 #include <IMessageHandler.h>
 #include <Routing/RoutingTable.h>
 
-#define SELF_ADDRESS 22222
-#define BROADCAST_ADDRESS 0xFFFF
-
 #define LIGHT_PIN A5
 #define BATTERY_PIN A4
 #define BATT_MEASURE_EN 6
@@ -18,6 +15,9 @@
 #define TEMPERATURE_PIN 2
 
 using namespace nRFTP;
+
+const uint16_t SELF_ADDRESS = 22222;
+const uint16_t BROADCAST_ADDRESS = 0xFFFF;
 
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);

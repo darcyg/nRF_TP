@@ -53,7 +53,7 @@ namespace nRFTP {
 
 
       bool nRFTransportProtocol::sendMessage(ByteBuffer& bb, uint16_t destAddress){
-        return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(destAddress));
+        return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(routing.getNextHopAddress(destAddress)));
       }
 
 
@@ -66,7 +66,6 @@ namespace nRFTP {
       }
 
       void nRFTransportProtocol::run(void){
-        // a waitingForPingResponse ha nem nulla, akkor az az idï¿½ van benne, mikor az utolsï¿½ ping ï¿½zenet kï¿½ldve lett, ha nulla, akkor nem vï¿½runk vï¿½laszra
         if (waitingForPingResponse > 0){
         	checkForPingTimeOut();
         }
@@ -85,7 +84,6 @@ namespace nRFTP {
             switch (type){
             	case Message::TYPE_PING:
             	  if (waitingForPingResponse != 0 && isResponse){
-                    // vï¿½laszra vï¿½runk ï¿½s response, ï¿½rtesï¿½ti az appot a messageHandleren keresztï¿½l, de nem az ï¿½ltalï¿½nos handleMessageve, hanem a pingResponseArrived-del
                     messageHandler->pingResponseArrived((uint16_t)(millis() - waitingForPingResponse), currentlyPingingAddress );
 
                     waitingForPingResponse = 0;
@@ -94,7 +92,6 @@ namespace nRFTP {
             	  }
 
 				  if (!isResponse){
-					// Objektum lï¿½trehozï¿½sa, cï¿½m cserï¿½je
 					PingMessage pingMessage(bb);
 					uint16_t tmp = pingMessage.header.srcAddress;
 					pingMessage.header.srcAddress = pingMessage.header.destAddress;
@@ -102,7 +99,7 @@ namespace nRFTP {
 
 					pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
 
-					// bytebuffer reset a copy elï¿½tt, aztï¿½n kï¿½ldï¿½s
+					// bytebuffer reset a copy elõtt aztán küldés
 					bb.reset();
 					pingMessage.copyToByteBuffer(bb);
 #if(DEBUG_TL)
@@ -117,10 +114,50 @@ namespace nRFTP {
                 case Message::TYPE_ROUTE:
                 {
                 	RouteMessage routeMessage(bb);
-                	//if(routeMessage.header.isResponseFromFirstByte(bb.data)){ //if FLAG == 1 then its a response, else its a request
+                	if(!isResponse){ 		//Request
+                		if(routeMessage.header.destAddress == SELF_ADDRESS){		//Mi voltunk a címzettek, response üzenetet küldünk visszafelé.
+                			if(!routing.isElement(routeMessage.header.srcAddress)){
+                				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			}
+                			uint16_t tmp = routeMessage.header.srcAddress;
+                			routeMessage.header.srcAddress = routeMessage.header.destAddress;
+                			routeMessage.header.destAddress = tmp;
+                			routeMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
+                			routeMessage.fromAddress = SELF_ADDRESS;
 
+                			bb.reset();
+                			routeMessage.copyToByteBuffer(bb);
+                			delay(20);
+                			sendMessage(bb, routeMessage.header.destAddress);
+                		}
+                		else{													//Request, broadcast csatornán továbbküldjük.
+                			if(!routing.isElement(routeMessage.header.srcAddress)){
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			}
+                			routeMessage.fromAddress = SELF_ADDRESS;
+                			bb.reset();
+                			routeMessage.copyToByteBuffer(bb);
+                			delay(20);
+                			sendMessage(bb, BROADCAST_ADDRESS);
+                		}
 
-                	//}
+                	}
+                	else {		//Response
+                		if(routeMessage.header.destAddress == SELF_ADDRESS){		//Response jött, mi voltunk a cél, felépült az útvonal.
+                			if(!routing.isElement(routeMessage.header.srcAddress)){
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			}
+                		}
+                		else {														//Response, tovább küldjük a cél felé.
+                			if(!routing.isElement(routeMessage.header.srcAddress)){
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			}
+                			routeMessage.fromAddress = SELF_ADDRESS;
+                			bb.reset();
+                			routeMessage.copyToByteBuffer(bb);
+                			sendMessage(bb, routeMessage.header.destAddress);
+                		}
+                	}
                 }
                 break;
 
