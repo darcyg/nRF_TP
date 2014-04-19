@@ -10,12 +10,13 @@
 
 #include <Routing/RoutingTableElement.h>
 
+
 namespace nRFTP {
 
 	class RoutingTable {
 		public:
 			static const int size = 10; //size of the table
-			static const int count = 0; //number of actual elements
+			uint8_t elementNum; //number of actual elements
 
 			RoutingTable();
 			virtual ~RoutingTable();
@@ -27,5 +28,7 @@ namespace nRFTP {
 	};
 
 } /* namespace nRFTP */
+
+extern nRFTP::RoutingTable routingTable[];
 
 #endif /* ROUTINGTABLE_H_ */

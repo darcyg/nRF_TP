@@ -22,8 +22,7 @@ using namespace nRFTP;
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
 
-RoutingTable *routingTable;
-RoutingTable routingTableArray[RoutingTable::size];
+RoutingTable routingTable[RoutingTable::size];
 
 class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
@@ -113,6 +112,8 @@ void setup() {
   pinMode(BATTERY_PIN, INPUT);
   pinMode(CURRENT_PIN, INPUT);
   pinMode(BATT_MEASURE_EN, OUTPUT);
+
+  RoutingTable();
 }
 
 void loop() {

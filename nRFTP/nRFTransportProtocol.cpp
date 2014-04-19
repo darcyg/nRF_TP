@@ -117,10 +117,10 @@ namespace nRFTP {
                 case Message::TYPE_ROUTE:
                 {
                 	RouteMessage routeMessage(bb);
-                	if(routeMessage.header.getFlag(Header::FLAG_IS_RESPONSE)){ //if FLAG == 1 then its a response, else its a request
+                	//if(routeMessage.header.isResponseFromFirstByte(bb.data)){ //if FLAG == 1 then its a response, else its a request
 
 
-                	}
+                	//}
                 }
                 break;
 

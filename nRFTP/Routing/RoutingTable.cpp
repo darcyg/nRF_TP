@@ -10,7 +10,7 @@
 namespace nRFTP {
 
 RoutingTable::RoutingTable() {
-	count = 0;
+	elementNum = 0;
 	// TODO Auto-generated constructor stub
 
 }
@@ -21,14 +21,14 @@ RoutingTable::~RoutingTable() {
 
 void RoutingTable::NewElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
 
-	routingTable[count].tableElement.destinationAddress = _destinationAddress;
-	routingTable[count].tableElement.nextHop = _nextHop;
-	routingTable[count].tableElement.rtt = _rtt;
-	routingTable[count].tableElement.ttl = _ttl;
-	routingTable[count].tableElement.lastActivity = _lastActivity;
-	routingTable[count].tableElement.reserved = _reserved;
+	routingTable[elementNum].tableElement.destinationAddress = _destinationAddress;
+	routingTable[elementNum].tableElement.nextHop = _nextHop;
+	routingTable[elementNum].tableElement.rtt = _rtt;
+	routingTable[elementNum].tableElement.ttl = _ttl;
+	routingTable[elementNum].tableElement.lastActivity = _lastActivity;
+	routingTable[elementNum].tableElement.reserved = _reserved;
 
-	count++;
+	elementNum++;
 
 }
 
@@ -43,9 +43,10 @@ void RoutingTable::DeleteElement(uint16_t _destinationAddress) {
 			routingTable[i].tableElement.ttl = 0;
 			routingTable[i].tableElement.lastActivity = 0;
 			routingTable[i].tableElement.reserved = 0;
+
+			elementNum--;
 		}
 	}
-	count--;
 }
 
 } /* namespace nRFTP */
