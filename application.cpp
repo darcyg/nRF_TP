@@ -6,8 +6,9 @@
 #include "Message/PingMessage.h"
 #include "Message/SensorData.h"
 #include <IMessageHandler.h>
+#include <Routing/RoutingTable.h>
 
-#define SELF_ADDRESS 22222
+#define SELF_ADDRESS 99999
 #define BROADCAST_ADDRESS 0xFFFF
 
 #define LIGHT_PIN A5
@@ -20,6 +21,7 @@ using namespace nRFTP;
 
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
+RoutingTable routingTable;
 
 class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
@@ -120,8 +122,8 @@ void loop() {
 	delay(3);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    if( nRFTransportProtocol::doPing && i < 20){
-    	nRFTransportProtocol::doPing = false;
+    if( transportProtocol.doPing && (i < 20)){
+    	transportProtocol.doPing = false;
     	transportProtocol.ping((uint16_t)atoi(addr));
     	i++;
     }
