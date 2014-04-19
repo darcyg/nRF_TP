@@ -155,6 +155,7 @@ namespace nRFTP {
                 			routeMessage.fromAddress = SELF_ADDRESS;
                 			bb.reset();
                 			routeMessage.copyToByteBuffer(bb);
+                			delay(20);
                 			sendMessage(bb, routeMessage.header.destAddress);
                 		}
                 	}
