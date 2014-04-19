@@ -1,7 +1,7 @@
 #ifndef nRFTP_BYTEBUFFER
 #define nRFTP_BYTEBUFFER
 
-#include <arduino.h>
+#include <Arduino.h>
 
 namespace nRFTP {
 

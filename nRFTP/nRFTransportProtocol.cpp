@@ -4,6 +4,8 @@
 
 namespace nRFTP {
 
+      bool nRFTransportProtocol::doPing;
+
 	  nRFTransportProtocol::nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address)
       : physicalLayer(_physicalLayer),
         address(_address){
@@ -64,7 +66,7 @@ namespace nRFTP {
       }
 
       void nRFTransportProtocol::run(void){
-        // a waitingForPingResponse ha nem nulla, akkor az az idõ van benne, mikor az utolsó ping üzenet küldve lett, ha nulla, akkor nem várunk válaszra
+        // a waitingForPingResponse ha nem nulla, akkor az az idï¿½ van benne, mikor az utolsï¿½ ping ï¿½zenet kï¿½ldve lett, ha nulla, akkor nem vï¿½runk vï¿½laszra
         if (waitingForPingResponse > 0){
         	checkForPingTimeOut();
         }
@@ -83,7 +85,7 @@ namespace nRFTP {
             switch (type){
             	case Message::TYPE_PING:
             	  if (waitingForPingResponse != 0 && isResponse){
-                    // válaszra várunk és response, értesíti az appot a messageHandleren keresztül, de nem az általános handleMessageve, hanem a pingResponseArrived-del
+                    // vï¿½laszra vï¿½runk ï¿½s response, ï¿½rtesï¿½ti az appot a messageHandleren keresztï¿½l, de nem az ï¿½ltalï¿½nos handleMessageve, hanem a pingResponseArrived-del
                     messageHandler->pingResponseArrived((uint16_t)(millis() - waitingForPingResponse), currentlyPingingAddress );
 
                     waitingForPingResponse = 0;
@@ -92,7 +94,7 @@ namespace nRFTP {
             	  }
 
 				  if (!isResponse){
-					// Objektum létrehozása, cím cseréje
+					// Objektum lï¿½trehozï¿½sa, cï¿½m cserï¿½je
 					PingMessage pingMessage(bb);
 					uint16_t tmp = pingMessage.header.srcAddress;
 					pingMessage.header.srcAddress = pingMessage.header.destAddress;
@@ -100,7 +102,7 @@ namespace nRFTP {
 
 					pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
 
-					// bytebuffer reset a copy elõtt, aztán küldés
+					// bytebuffer reset a copy elï¿½tt, aztï¿½n kï¿½ldï¿½s
 					bb.reset();
 					pingMessage.copyToByteBuffer(bb);
 #if(DEBUG_TL)

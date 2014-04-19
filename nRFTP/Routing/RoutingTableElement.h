@@ -8,7 +8,7 @@
 #ifndef ROUTINGTABLEELEMENT_H_
 #define ROUTINGTABLEELEMENT_H_
 
-#include <arduino.h>
+#include <Arduino.h>
 
 namespace nRFTP {
 

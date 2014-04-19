@@ -29,7 +29,7 @@ namespace nRFTP {
 
       void run(void);
 
-      bool doPing;
+      static bool doPing;
 
     protected:
       word address;

@@ -1,7 +1,7 @@
 #ifndef nRFTP_UTIL
 #define nRFTP_UTIL
 
-#include <arduino.h>
+#include <Arduino.h>
 
 namespace nRFTP {
   

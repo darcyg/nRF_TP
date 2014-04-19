@@ -1,7 +1,7 @@
 #ifndef nRFTP_HEADER
 #define nRFTP_HEADER
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "Util/ByteBuffer.h"
 #include <HardwareSerial.h>
 

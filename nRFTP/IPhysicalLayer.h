@@ -1,7 +1,7 @@
 #ifndef nRFTP_IPHYSICALLAYER
 #define nRFTP_IPHYSICALLAYER
 
-#include <arduino.h>
+#include <Arduino.h>
 
 namespace nRFTP{
 
