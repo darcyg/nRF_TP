@@ -23,6 +23,7 @@ nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),U
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
 
 RoutingTable routingTable[RoutingTable::size];
+RoutingTable routing;
 
 class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
@@ -113,11 +114,13 @@ void setup() {
   pinMode(CURRENT_PIN, INPUT);
   pinMode(BATT_MEASURE_EN, OUTPUT);
 
-  RoutingTable();
+  routing.elementNum = 0;
 }
 
 void loop() {
   transportProtocol.run();
+
+
 
   if ( Serial.available() )
   {

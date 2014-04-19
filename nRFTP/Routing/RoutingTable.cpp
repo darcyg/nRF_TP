@@ -21,6 +21,8 @@ RoutingTable::~RoutingTable() {
 
 void RoutingTable::NewElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
 
+	//TODO Ha tele van a tábla, akkor megkeressük a legritkábban használt címet, és annak a helyére írjuk be az újat.
+
 	routingTable[elementNum].tableElement.destinationAddress = _destinationAddress;
 	routingTable[elementNum].tableElement.nextHop = _nextHop;
 	routingTable[elementNum].tableElement.rtt = _rtt;
@@ -33,6 +35,7 @@ void RoutingTable::NewElement(uint16_t _destinationAddress, uint16_t _nextHop, u
 }
 
 void RoutingTable::DeleteElement(uint16_t _destinationAddress) {
+
 	for(int i= 0; i <= RoutingTable::size; i++)
 	{
 		if(routingTable[i].tableElement.destinationAddress == _destinationAddress)
@@ -44,8 +47,41 @@ void RoutingTable::DeleteElement(uint16_t _destinationAddress) {
 			routingTable[i].tableElement.lastActivity = 0;
 			routingTable[i].tableElement.reserved = 0;
 
+			for(int j = i; j <= elementNum; j++){
+				routingTable[j].tableElement.destinationAddress = routingTable[j+1].tableElement.destinationAddress;
+				routingTable[j].tableElement.nextHop = routingTable[j+1].tableElement.nextHop;
+				routingTable[j].tableElement.rtt = routingTable[j+1].tableElement.rtt;
+				routingTable[j].tableElement.ttl = routingTable[j+1].tableElement.ttl;
+				routingTable[j].tableElement.lastActivity = routingTable[j+1].tableElement.lastActivity;
+				routingTable[j].tableElement.reserved = routingTable[j+1].tableElement.reserved;
+			}
+
 			elementNum--;
 		}
+	}
+}
+
+void RoutingTable::SendRoutingTable() {
+	//TODO Jelenleg sorosra küldi ki a táblát, ezt kell majd átalakítani, hogy az nRF-en keresztül menjen el.
+
+	for(int i = 0; i < RoutingTable::elementNum; i++) {
+		Serial.println("-------- print routing -------");
+		Serial.print("Dest:"); 			Serial.println(routingTable[i].tableElement.destinationAddress);
+		Serial.print("Next hop:"); 		Serial.println(routingTable[i].tableElement.nextHop);
+		Serial.print("RTT:"); 			Serial.println(routingTable[i].tableElement.rtt);
+		Serial.print("TTL:"); 			Serial.println(routingTable[i].tableElement.ttl);
+		Serial.print("Last Activity:"); Serial.println(routingTable[i].tableElement.lastActivity);
+		Serial.println("------------------------------");
+	}
+}
+
+bool RoutingTable::IsElement(uint16_t _destinationAddress) {
+	for(int i = 0; i <= elementNum; i++) {
+		if(routingTable[i].tableElement.destinationAddress == _destinationAddress) {
+			return true;
+		}
+		else
+			return false;
 	}
 }
 

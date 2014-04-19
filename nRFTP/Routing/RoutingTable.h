@@ -23,6 +23,8 @@ namespace nRFTP {
 
 			void NewElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved);
 			void DeleteElement(uint16_t destinationAddress);
+			void SendRoutingTable();
+			bool IsElement (uint16_t destinationAddress);
 
 			RoutingTableElement tableElement;
 	};
