@@ -10,7 +10,7 @@
 namespace nRFTP {
 
 RoutingTableElement::RoutingTableElement() {
-	// TODO Auto-generated destructor stub
+	// TODO Auto-generated constructor stub
 
 }
 
