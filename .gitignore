@@ -4,8 +4,5 @@ spec.d
 .cproject
 .settings/
 build.log
-<<<<<<< HEAD
 build.ps1
-=======
 arduino.ar
->>>>>>> 3b68fd3115ec0d9bfab7de159abaf19960fbc00f
