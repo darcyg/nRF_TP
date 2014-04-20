@@ -53,7 +53,28 @@ namespace nRFTP {
 
 
       bool nRFTransportProtocol::sendMessage(ByteBuffer& bb, uint16_t destAddress){
-        return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(routing.getNextHopAddress(destAddress)));
+    	  if(routing.isElement(destAddress)) {
+    		  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(routing.getNextHopAddress(destAddress)));
+    	  }
+    	  else {
+    		  if(destAddress == BROADCAST_ADDRESS) {
+    			 return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS));
+    		  } else {
+				  RouteMessage routeMessage(bb);
+				  routeMessage.header.srcAddress = SELF_ADDRESS;
+				  routeMessage.header.destAddress = destAddress;
+				  routeMessage.header.setFlag(routeMessage.header.FLAG_IS_RESPONSE, 0);
+				  routeMessage.fromAddress = SELF_ADDRESS;
+
+				  bb.reset();
+				  delay(20);
+#if(DEBUG_TL)
+	Serial.println("New destAddress. Route request sent!");
+	routeMessage.header.printHeader();
+#endif
+				  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS));
+    		  }
+    	  }
       }
 
 
@@ -129,6 +150,10 @@ namespace nRFTP {
                 			routeMessage.copyToByteBuffer(bb);
                 			delay(20);
                 			sendMessage(bb, routeMessage.header.destAddress);
+#if(DEBUG_TL)
+	Serial.println("Request arrived. Route response sent!");
+	routeMessage.header.printHeader();
+#endif
                 		}
                 		else{													//Request, broadcast csatornán továbbküldjük.
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
@@ -139,6 +164,10 @@ namespace nRFTP {
                 			routeMessage.copyToByteBuffer(bb);
                 			delay(20);
                 			sendMessage(bb, BROADCAST_ADDRESS);
+#if(DEBUG_TL)
+	Serial.println("Route request sent broadcast!");
+	routeMessage.header.printHeader();
+#endif
                 		}
 
                 	}
@@ -147,6 +176,9 @@ namespace nRFTP {
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
+#if(DEBUG_TL)
+	Serial.println("Route complete!");
+#endif
                 		}
                 		else {														//Response, tovább küldjük a cél felé.
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
@@ -157,6 +189,10 @@ namespace nRFTP {
                 			routeMessage.copyToByteBuffer(bb);
                 			delay(20);
                 			sendMessage(bb, routeMessage.header.destAddress);
+#if(DEBUG_TL)
+	Serial.println("Route response sent!");
+	routeMessage.header.printHeader();
+#endif
                 		}
                 	}
                 }
