@@ -1,7 +1,12 @@
 #ifndef nRFTP_MESSAGE
 #define nRFTP_MESSAGE
 
-#include <arduino.h>
+#ifdef ARDUINO
+	#include <Arduino.h>
+#else
+#include <stdint.h>
+#endif
+
 #include "Header.h"
 
 namespace nRFTP {

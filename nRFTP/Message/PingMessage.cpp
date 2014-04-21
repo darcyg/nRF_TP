@@ -8,7 +8,12 @@ namespace nRFTP{
     }
 
     PingMessage::PingMessage(uint16_t _srcAddress, uint16_t _destAddress)
-    : Message(_srcAddress,_destAddress,Message::TYPE_PING), sendTime(millis()){
+    : Message(_srcAddress,_destAddress,Message::TYPE_PING){
+#ifdef ARDUINO
+    	sendTime = (uint16_t)millis();
+#else
+    	sendTime = 0;
+#endif
     }
 
     void PingMessage::copyToByteBuffer(ByteBuffer& dest){

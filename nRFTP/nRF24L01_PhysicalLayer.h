@@ -1,6 +1,8 @@
 #ifndef nRFTP_NRF24L01_PHYSICALLAYER
 #define nRFTP_NRF24L01_PHYSICALLAYER
 
+#ifdef ARDUINO
+
 #include <Arduino.h>
 #include "IPhysicalLayer.h"
 #include <nRF24L01.h>
@@ -25,4 +27,6 @@ namespace nRFTP{
   };
 
 }
+
+#endif
 #endif

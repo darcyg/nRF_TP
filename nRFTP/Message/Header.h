@@ -1,9 +1,15 @@
 #ifndef nRFTP_HEADER
 #define nRFTP_HEADER
 
-#include <Arduino.h>
+#ifdef ARDUINO
+	#include <Arduino.h>
+	#include <HardwareSerial.h>
+#else
+#include <stdint.h>
+#endif
+
 #include "Util/ByteBuffer.h"
-#include <HardwareSerial.h>
+
 
 #define TYPE_BITS 4
 
@@ -28,7 +34,7 @@ namespace nRFTP {
       void copyToByteBuffer(ByteBuffer& dest);
 
       void setType(uint8_t type);
-      void setFlag(uint8_t flagNum, boolean value);
+      void setFlag(uint8_t flagNum, bool value);
       bool getFlag(uint8_t flagNum);
       uint8_t getType();
 
@@ -41,8 +47,8 @@ namespace nRFTP {
 
     private:
 
-      static const uint8_t typeMask = B00001111;
-      static const uint8_t flagsMask = B11110000;
+      static const uint8_t typeMask = 0xf;
+      static const uint8_t flagsMask = 0xf0;
   };
 }
 

@@ -1,6 +1,6 @@
 #include "nRF24L01_PhysicalLayer.h"
 //#include "Header.h"
-
+#ifdef ARDUINO
 #define DEBUG_PL 0
 
 namespace nRFTP{
@@ -46,3 +46,4 @@ namespace nRFTP{
     return radio.read(buf, len);
   }
 }
+#endif

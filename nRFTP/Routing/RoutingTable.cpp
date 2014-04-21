@@ -21,14 +21,14 @@ RoutingTable::~RoutingTable() {
 
 void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
 
-	//TODO Ha tele van a tábla, akkor megkeressük a legritkábban használt címet, és annak a helyére írjuk be az újat.
+	//TODO Ha tele van a tï¿½bla, akkor megkeressï¿½k a legritkï¿½bban hasznï¿½lt cï¿½met, ï¿½s annak a helyï¿½re ï¿½rjuk be az ï¿½jat.
 
-	routingTable[elementNum].tableElement.destinationAddress = _destinationAddress;
-	routingTable[elementNum].tableElement.nextHop = _nextHop;
-	routingTable[elementNum].tableElement.rtt = _rtt;
-	routingTable[elementNum].tableElement.ttl = _ttl;
-	routingTable[elementNum].tableElement.lastActivity = _lastActivity;
-	routingTable[elementNum].tableElement.reserved = _reserved;
+	elements[elementNum].destinationAddress = _destinationAddress;
+	elements[elementNum].nextHop = _nextHop;
+	elements[elementNum].rtt = _rtt;
+	elements[elementNum].ttl = _ttl;
+	elements[elementNum].lastActivity = _lastActivity;
+	elements[elementNum].reserved = _reserved;
 
 	elementNum++;
 
@@ -38,22 +38,22 @@ void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 
 	for(int i= 0; i <= RoutingTable::size; i++)
 	{
-		if(routingTable[i].tableElement.destinationAddress == _destinationAddress)
+		if(elements[i].destinationAddress == _destinationAddress)
 		{
-			routingTable[i].tableElement.destinationAddress = 0;
-			routingTable[i].tableElement.nextHop = 0;
-			routingTable[i].tableElement.rtt = 0;
-			routingTable[i].tableElement.ttl = 0;
-			routingTable[i].tableElement.lastActivity = 0;
-			routingTable[i].tableElement.reserved = 0;
+			elements[i].destinationAddress = 0;
+			elements[i].nextHop = 0;
+			elements[i].rtt = 0;
+			elements[i].ttl = 0;
+			elements[i].lastActivity = 0;
+			elements[i].reserved = 0;
 
 			for(int j = i; j <= elementNum; j++){
-				routingTable[j].tableElement.destinationAddress = routingTable[j+1].tableElement.destinationAddress;
-				routingTable[j].tableElement.nextHop = routingTable[j+1].tableElement.nextHop;
-				routingTable[j].tableElement.rtt = routingTable[j+1].tableElement.rtt;
-				routingTable[j].tableElement.ttl = routingTable[j+1].tableElement.ttl;
-				routingTable[j].tableElement.lastActivity = routingTable[j+1].tableElement.lastActivity;
-				routingTable[j].tableElement.reserved = routingTable[j+1].tableElement.reserved;
+				elements[j].destinationAddress = elements[j+1].destinationAddress;
+				elements[j].nextHop = elements[j+1].nextHop;
+				elements[j].rtt = elements[j+1].rtt;
+				elements[j].ttl = elements[j+1].ttl;
+				elements[j].lastActivity = elements[j+1].lastActivity;
+				elements[j].reserved = elements[j+1].reserved;
 			}
 
 			elementNum--;
@@ -63,20 +63,22 @@ void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 
 void RoutingTable::printRoutingTable() {
 
+#ifdef ARDUINO
 	for(int i = 0; i < RoutingTable::elementNum; i++) {
 		Serial.println("-------- print routing -------");
-		Serial.print("Dest:"); 			Serial.println(routingTable[i].tableElement.destinationAddress);
-		Serial.print("Next hop:"); 		Serial.println(routingTable[i].tableElement.nextHop);
-		Serial.print("RTT:"); 			Serial.println(routingTable[i].tableElement.rtt);
-		Serial.print("TTL:"); 			Serial.println(routingTable[i].tableElement.ttl);
-		Serial.print("Last Activity:"); Serial.println(routingTable[i].tableElement.lastActivity);
+		Serial.print("Dest:"); 			Serial.println(elements[i].destinationAddress);
+		Serial.print("Next hop:"); 		Serial.println(elements[i].nextHop);
+		Serial.print("RTT:"); 			Serial.println(elements[i].rtt);
+		Serial.print("TTL:"); 			Serial.println(elements[i].ttl);
+		Serial.print("Last Activity:"); Serial.println(elements[i].lastActivity);
 		Serial.println("------------------------------");
 	}
+#endif
 }
 
 bool RoutingTable::isElement(uint16_t _destinationAddress) {
 	for(int i = 0; i <= elementNum; i++) {
-		if(routingTable[i].tableElement.destinationAddress == _destinationAddress) {
+		if(elements[i].destinationAddress == _destinationAddress) {
 			return true;
 		}
 		else
@@ -87,9 +89,9 @@ bool RoutingTable::isElement(uint16_t _destinationAddress) {
 uint16_t RoutingTable::getNextHopAddress(uint16_t destinationAddress){
 	for(int i=0; i < elementNum; i++)
 	{
-		if(destinationAddress == routingTable[i].tableElement.destinationAddress)
+		if(destinationAddress == elements[i].destinationAddress)
 		{
-			return routingTable[i].tableElement.nextHop;
+			return elements[i].nextHop;
 		}
 	}
 }

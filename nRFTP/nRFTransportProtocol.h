@@ -15,6 +15,8 @@ namespace nRFTP {
 
   class nRFTransportProtocol{
     public:
+	  static const uint16_t broadcastAddress = 0xffff;
+
 	  nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address);
       void begin(IMessageHandler* _messageHandler);
 
@@ -32,14 +34,18 @@ namespace nRFTP {
 
       static bool doPing;
 
+
+
     protected:
-      word address;
+      uint16_t address;
       IPhysicalLayer* physicalLayer;
       IMessageHandler* messageHandler;
 
       uint8_t readBuffer[Message::SIZE];
       uint16_t readedType;
       bool readedIsResponse;
+
+      nRFTP::RoutingTable routing;
 
       unsigned long waitingForPingResponse;
       uint16_t currentlyPingingAddress;
@@ -50,7 +56,4 @@ namespace nRFTP {
   };
 
 }
-extern const uint16_t SELF_ADDRESS;
-extern const uint16_t BROADCAST_ADDRESS;
-extern nRFTP::RoutingTable routing;
 #endif

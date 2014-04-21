@@ -1,7 +1,11 @@
 #ifndef nRFTP_IPHYSICALLAYER
 #define nRFTP_IPHYSICALLAYER
 
+#ifdef ARDUINO
 #include <Arduino.h>
+#else
+#include <stdint.h>
+#endif
 
 namespace nRFTP{
 

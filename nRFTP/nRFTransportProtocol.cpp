@@ -27,11 +27,15 @@ namespace nRFTP {
 		  ByteBuffer bb(sendBuffer);
 		  pingMessage.copyToByteBuffer(bb);
 
+#ifdef ARDUINO
 		  waitingForPingResponse = millis();
+#endif
 		  currentlyPingingAddress = destAddress;
 #if(DEBUG_TL)
+#ifdef ARDUINO
 	Serial.println("Ping request sent!");
 	pingMessage.header.printHeader();
+#endif
 #endif
 		  bool res = sendMessage(bb, destAddress);
       }
@@ -57,22 +61,26 @@ namespace nRFTP {
     		  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(routing.getNextHopAddress(destAddress)));
     	  }
     	  else {
-    		  if(destAddress == BROADCAST_ADDRESS) {
-    			 return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS));
+    		  if(destAddress == broadcastAddress) {
+    			 return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(broadcastAddress));
     		  } else {
 				  RouteMessage routeMessage(bb);
-				  routeMessage.header.srcAddress = SELF_ADDRESS;
+				  routeMessage.header.srcAddress = address;
 				  routeMessage.header.destAddress = destAddress;
 				  routeMessage.header.setFlag(routeMessage.header.FLAG_IS_RESPONSE, 0);
-				  routeMessage.fromAddress = SELF_ADDRESS;
+				  routeMessage.fromAddress = address;
 
 				  bb.reset();
+#ifdef ARDUINO
 				  delay(20);
+#endif
+#ifdef ARDUINO
 #if(DEBUG_TL)
 	Serial.println("New destAddress. Route request sent!");
 	routeMessage.header.printHeader();
 #endif
-				  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS));
+#endif
+				  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(broadcastAddress));
     		  }
     	  }
       }
@@ -105,7 +113,9 @@ namespace nRFTP {
             switch (type){
             	case Message::TYPE_PING:
             	  if (waitingForPingResponse != 0 && isResponse){
+#ifdef ARDUINO
                     messageHandler->pingResponseArrived((uint16_t)(millis() - waitingForPingResponse), currentlyPingingAddress );
+#endif
 
                     waitingForPingResponse = 0;
                     currentlyPingingAddress = 0;
@@ -120,14 +130,19 @@ namespace nRFTP {
 
 					pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
 
-					// bytebuffer reset a copy elõtt aztán küldés
+					// bytebuffer reset a copy elï¿½tt aztï¿½n kï¿½ldï¿½s
 					bb.reset();
 					pingMessage.copyToByteBuffer(bb);
+#ifdef ARDUINO
 #if(DEBUG_TL)
 	Serial.println("Ping response sent!");
 	pingMessage.header.printHeader();
 #endif
+#endif
+
+#ifdef ARDUINO
 					delay(20);
+#endif
 					sendMessage(bb, pingMessage.header.destAddress);
 				  }
 				break;
@@ -136,7 +151,7 @@ namespace nRFTP {
                 {
                 	RouteMessage routeMessage(bb);
                 	if(!isResponse){ 		//Request
-                		if(routeMessage.header.destAddress == SELF_ADDRESS){		//Mi voltunk a címzettek, response üzenetet küldünk visszafelé.
+                		if(routeMessage.header.destAddress == address){		//Mi voltunk a cï¿½mzettek, response ï¿½zenetet kï¿½ldï¿½nk visszafelï¿½.
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
@@ -144,54 +159,69 @@ namespace nRFTP {
                 			routeMessage.header.srcAddress = routeMessage.header.destAddress;
                 			routeMessage.header.destAddress = tmp;
                 			routeMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
-                			routeMessage.fromAddress = SELF_ADDRESS;
+                			routeMessage.fromAddress = address;
 
                 			bb.reset();
                 			routeMessage.copyToByteBuffer(bb);
+#ifdef ARDUINO
                 			delay(20);
+#endif
                 			sendMessage(bb, routeMessage.header.destAddress);
+#ifdef ARDUINO
 #if(DEBUG_TL)
 	Serial.println("Request arrived. Route response sent!");
 	routeMessage.header.printHeader();
 #endif
+#endif
                 		}
-                		else{													//Request, broadcast csatornán továbbküldjük.
+                		else{													//Request, broadcast csatornï¿½n tovï¿½bbkï¿½ldjï¿½k.
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
-                			routeMessage.fromAddress = SELF_ADDRESS;
+                			routeMessage.fromAddress = address;
                 			bb.reset();
                 			routeMessage.copyToByteBuffer(bb);
+#ifdef ARDUINO
                 			delay(20);
-                			sendMessage(bb, BROADCAST_ADDRESS);
+#endif
+                			sendMessage(bb, broadcastAddress);
+#ifdef ARDUINO
 #if(DEBUG_TL)
 	Serial.println("Route request sent broadcast!");
 	routeMessage.header.printHeader();
+#endif
 #endif
                 		}
 
                 	}
                 	else {		//Response
-                		if(routeMessage.header.destAddress == SELF_ADDRESS){		//Response jött, mi voltunk a cél, felépült az útvonal.
+                		if(routeMessage.header.destAddress == address){		//Response jï¿½tt, mi voltunk a cï¿½l, felï¿½pï¿½lt az ï¿½tvonal.
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
+#ifdef ARDUINO
 #if(DEBUG_TL)
 	Serial.println("Route complete!");
 #endif
+#endif
                 		}
-                		else {														//Response, tovább küldjük a cél felé.
+                		else {														//Response, tovï¿½bb kï¿½ldjï¿½k a cï¿½l felï¿½.
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
-                			routeMessage.fromAddress = SELF_ADDRESS;
+                			routeMessage.fromAddress = address;
                 			bb.reset();
                 			routeMessage.copyToByteBuffer(bb);
+#ifdef ARDUINO
                 			delay(20);
+#endif
+
                 			sendMessage(bb, routeMessage.header.destAddress);
+#ifdef ARDUINO
 #if(DEBUG_TL)
 	Serial.println("Route response sent!");
 	routeMessage.header.printHeader();
+#endif
 #endif
                 		}
                 	}
@@ -211,12 +241,14 @@ namespace nRFTP {
       }
 
       void nRFTransportProtocol::checkForPingTimeOut(){
+#ifdef ARDUINO
           if (millis() - waitingForPingResponse > PingMessage::MAX_WAIT_TIME){
             messageHandler->pingResponseArrived(PingMessage::TIMEOUT_VAL, currentlyPingingAddress );
             waitingForPingResponse = 0;
             currentlyPingingAddress = 0;
             doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
           }
+#endif
       }
 }
 

@@ -29,16 +29,20 @@ namespace nRFTP {
     flagsAndType = flagsAndType | type;
   }
 
-  void Header::setFlag(uint8_t flagNum, boolean value){
+  void Header::setFlag(uint8_t flagNum, bool value){
+#ifdef ARDUINO
     if (value){
       bitSet(flagsAndType,8-flagNum);
     } else {
       bitClear(flagsAndType,8-flagNum);
     }
+#endif
   }
 
   bool Header::getFlag(uint8_t flagNum){
+#ifdef ARDUINO
     return bitRead(flagsAndType,8-flagNum) > 0;
+#endif
   }
 
   uint8_t Header::getType(){
@@ -50,9 +54,12 @@ namespace nRFTP {
   }
 
   bool Header::isResponseFromFirstByte( uint8_t firstByteOfReadBuffer){
+#ifdef ARDUINO
 	  return bitRead(firstByteOfReadBuffer,8-FLAG_IS_RESPONSE) > 0;
+#endif
   }
 
+#ifdef ARDUINO
 #if DEBUG_HEADER == 1
      void Header::printHeader(){
        Serial.println("-------- print header -------");
@@ -63,6 +70,7 @@ namespace nRFTP {
        Serial.print("Fragment offset: "); Serial.println(fragmentOffset, BIN);
        Serial.println("-----------------------------");
      }
+#endif
 #endif
 
 }
