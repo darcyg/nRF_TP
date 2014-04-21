@@ -3,7 +3,10 @@
 
 #include "Message/Message.h"
 
+
 namespace nRFTP{
+
+	class ByteBuffer;
 
     class PingMessage : public Message
     {

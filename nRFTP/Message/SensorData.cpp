@@ -2,9 +2,10 @@
  * SensorData.cpp
  *
  *  Created on: 2014.04.15.
- *      Author: Molnár Bálint
+ *      Author: Molnï¿½r Bï¿½lint
  */
 #include "Message/SensorData.h"
+#include "Util/ByteBuffer.h"
 
 namespace nRFTP{
 

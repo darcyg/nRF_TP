@@ -5,6 +5,8 @@
 
 namespace nRFTP{
 
+	class ByteBuffer;
+
     class RouteMessage : public Message
     {
         public:

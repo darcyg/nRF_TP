@@ -27,7 +27,7 @@ namespace nRFTP {
 			bool isElement (uint16_t destinationAddress);
 			uint16_t getNextHopAddress(uint16_t destinationAddress);
 
-			RoutingTableElement elements[];
+			RoutingTableElement elements[size];
 	};
 
 } /* namespace nRFTP */

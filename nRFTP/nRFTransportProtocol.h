@@ -1,17 +1,15 @@
 #ifndef nRFTP_CLASS
 #define nRFTP_CLASS
 
-#include "IPhysicalLayer.h"
 #include "Message/Message.h"
-#include "Util/Util.h"
-#include "Message/PingMessage.h"
-#include <IMessageHandler.h>
-#include "Message/RouteMessage.h"
 #include "Routing/RoutingTable.h"
 
 #define DEBUG_NRFTP 1
 
 namespace nRFTP {
+
+  class IPhysicalLayer;
+  class IMessageHandler;
 
   class nRFTransportProtocol{
     public:
@@ -34,7 +32,9 @@ namespace nRFTP {
 
       static bool doPing;
 
-
+#ifndef ARDUINO
+      static uint64_t startTime;
+#endif
 
     protected:
       uint16_t address;

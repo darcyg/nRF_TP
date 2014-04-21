@@ -1,4 +1,5 @@
 #include "Message.h"
+#include "Util/Util.h"
 
 namespace nRFTP {
 
@@ -9,9 +10,7 @@ namespace nRFTP {
   Message::Message(uint16_t srcAddress, uint16_t destAddress, uint8_t _type){
     header.srcAddress = srcAddress;
     header.destAddress = destAddress;
-#ifdef ARDUINO
-    header.messageId = (uint16_t)(millis());
-#endif
+    header.messageId = (uint16_t)(RFMILLIS());
     header.setType(_type);
   }
 

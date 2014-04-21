@@ -6,17 +6,17 @@
  */
 
 #include <Routing/RoutingTable.h>
+#include "Util/Util.h"
 
 namespace nRFTP {
 
 RoutingTable::RoutingTable() {
 	elementNum = 0;
-	// TODO Auto-generated constructor stub
+
 
 }
 
 RoutingTable::~RoutingTable() {
-	// TODO Auto-generated destructor stub
 }
 
 void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
@@ -63,17 +63,15 @@ void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 
 void RoutingTable::printRoutingTable() {
 
-#ifdef ARDUINO
 	for(int i = 0; i < RoutingTable::elementNum; i++) {
-		Serial.println("-------- print routing -------");
-		Serial.print("Dest:"); 			Serial.println(elements[i].destinationAddress);
-		Serial.print("Next hop:"); 		Serial.println(elements[i].nextHop);
-		Serial.print("RTT:"); 			Serial.println(elements[i].rtt);
-		Serial.print("TTL:"); 			Serial.println(elements[i].ttl);
-		Serial.print("Last Activity:"); Serial.println(elements[i].lastActivity);
-		Serial.println("------------------------------");
+		RFLOGLN("-------- print routing -------");
+		RFLOG("Dest:"); 			RFLOGLN(elements[i].destinationAddress);
+		RFLOG("Next hop:"); 		RFLOGLN(elements[i].nextHop);
+		RFLOG("RTT:"); 			RFLOGLN(elements[i].rtt);
+		RFLOG("TTL:"); 			RFLOGLN(elements[i].ttl);
+		RFLOG("Last Activity:"); RFLOGLN(elements[i].lastActivity);
+		RFLOGLN("------------------------------");
 	}
-#endif
 }
 
 bool RoutingTable::isElement(uint16_t _destinationAddress) {

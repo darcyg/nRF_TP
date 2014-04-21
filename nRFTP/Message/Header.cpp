@@ -1,4 +1,7 @@
 #include "Message/Header.h"
+#include "Util/Util.h"
+#include "Util/ByteBuffer.h"
+
 
 namespace nRFTP {
 
@@ -59,18 +62,16 @@ namespace nRFTP {
 #endif
   }
 
-#ifdef ARDUINO
 #if DEBUG_HEADER == 1
      void Header::printHeader(){
-       Serial.println("-------- print header -------");
-       Serial.print("Flags and type: "); Serial.println(flagsAndType, BIN);
-       Serial.print("Src addres: "); Serial.println(srcAddress);
-       Serial.print("Dest address: "); Serial.println(destAddress);
-       Serial.print("Msg id: "); Serial.println(messageId);
-       Serial.print("Fragment offset: "); Serial.println(fragmentOffset, BIN);
-       Serial.println("-----------------------------");
+       RFLOGLN("-------- print header -------");
+       RFLOG("Flags and type: "); RFLOGLN(flagsAndType);
+       RFLOG("Src addres: "); RFLOGLN(srcAddress);
+       RFLOG("Dest address: "); RFLOGLN(destAddress);
+       RFLOG("Msg id: "); RFLOGLN(messageId);
+       RFLOG("Fragment offset: "); RFLOGLN(fragmentOffset);
+       RFLOGLN("-----------------------------");
      }
-#endif
 #endif
 
 }

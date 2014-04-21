@@ -2,7 +2,7 @@
 #define nRFTP_BYTEBUFFER
 
 #ifdef ARDUINO
-	#include <Arduino.h>
+#include <Arduino.h>
 #else
 #include <stdint.h>
 #endif

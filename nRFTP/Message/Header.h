@@ -8,14 +8,13 @@
 #include <stdint.h>
 #endif
 
-#include "Util/ByteBuffer.h"
-
-
 #define TYPE_BITS 4
 
 #define DEBUG_HEADER 1
 
 namespace nRFTP {
+
+  class ByteBuffer;
 
   class Header{
     public:

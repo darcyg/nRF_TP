@@ -1,4 +1,6 @@
 #include "Message/PingMessage.h"
+#include "Util/Util.h"
+#include "Util/ByteBuffer.h"
 
 namespace nRFTP{
 
@@ -9,11 +11,7 @@ namespace nRFTP{
 
     PingMessage::PingMessage(uint16_t _srcAddress, uint16_t _destAddress)
     : Message(_srcAddress,_destAddress,Message::TYPE_PING){
-#ifdef ARDUINO
-    	sendTime = (uint16_t)millis();
-#else
-    	sendTime = 0;
-#endif
+    	sendTime = (uint16_t)RFMILLIS();
     }
 
     void PingMessage::copyToByteBuffer(ByteBuffer& dest){

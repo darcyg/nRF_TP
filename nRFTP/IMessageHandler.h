@@ -1,9 +1,9 @@
 #ifndef nRFTP_IMESSAGEHANDLER
 #define nRFTP_IMESSAGEHANDLER
 
-#include "Util/ByteBuffer.h"
-
 namespace nRFTP {
+
+	class ByteBuffer;
 
     class IMessageHandler
     {

@@ -7,7 +7,6 @@
 #include <stdint.h>
 #endif
 #include "IPhysicalLayer.h"
-#include "Message/Message.h"
 
 namespace nRFTP{
 

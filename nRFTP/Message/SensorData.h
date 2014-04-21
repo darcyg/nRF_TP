@@ -2,7 +2,7 @@
  * SensorData.h
  *
  *  Created on: 2014.04.15.
- *      Author: Molnár Bálint
+ *      Author: Molnï¿½r Bï¿½lint
  */
 
 #ifndef SENSORDATA_H_
@@ -11,6 +11,8 @@
 #include "Message/Message.h"
 
 namespace nRFTP{
+
+	class ByteBuffer;
 
 	class SensorData : public Message
     {

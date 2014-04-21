@@ -5,9 +5,7 @@
 
 #include <Arduino.h>
 #include "IPhysicalLayer.h"
-#include <nRF24L01.h>
 #include <RF24.h>
-#include "Message/Message.h"
 
 namespace nRFTP{
 

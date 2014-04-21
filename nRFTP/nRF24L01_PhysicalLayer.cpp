@@ -1,6 +1,9 @@
-#include "nRF24L01_PhysicalLayer.h"
-//#include "Header.h"
 #ifdef ARDUINO
+#include "nRF24L01_PhysicalLayer.h"
+#include "Message/Message.h"
+#include <nRF24L01.h>
+
+
 #define DEBUG_PL 0
 
 namespace nRFTP{
