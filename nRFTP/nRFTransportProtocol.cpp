@@ -139,7 +139,7 @@ namespace nRFTP {
 
 					pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
 
-					// bytebuffer reset a copy el�tt azt�n k�ld�s
+
 					bb.reset();
 					pingMessage.copyToByteBuffer(bb);
 #if(DEBUG_TL)
@@ -156,7 +156,7 @@ namespace nRFTP {
                 {
                 	RouteMessage routeMessage(bb);
                 	if(!isResponse){ 		//Request
-                		if(routeMessage.header.destAddress == address){		//Mi voltunk a c�mzettek, response �zenetet k�ld�nk visszafel�.
+                		if(routeMessage.header.destAddress == address){
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
@@ -175,7 +175,7 @@ namespace nRFTP {
 	routeMessage.header.printHeader();
 #endif
                 		}
-                		else{													//Request, broadcast csatorn�n tov�bbk�ldj�k.
+                		else{
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
@@ -192,7 +192,7 @@ namespace nRFTP {
 
                 	}
                 	else {		//Response
-                		if(routeMessage.header.destAddress == address){		//Response j�tt, mi voltunk a c�l, fel�p�lt az �tvonal.
+                		if(routeMessage.header.destAddress == address){
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
@@ -200,7 +200,7 @@ namespace nRFTP {
                 			RFLOGLN("Route complete!");
 #endif
                 		}
-                		else {														//Response, tov�bb k�ldj�k a c�l fel�.
+                		else {
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
                 			}
