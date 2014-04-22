@@ -25,6 +25,7 @@ namespace nRFTP{
 			uint8_t sensorType;
 			uint32_t sensorData;
 
+			SensorData();
 			SensorData(ByteBuffer& src);
 			SensorData(uint8_t _sensorType, uint32_t _sensorData, uint16_t _srcAddress, uint16_t _destAddress);
 			void copyToByteBuffer(ByteBuffer& dest);

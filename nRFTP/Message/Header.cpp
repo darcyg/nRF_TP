@@ -5,7 +5,13 @@
 
 namespace nRFTP {
 
-  Header::Header() : fragmentOffset(0){
+  Header::Header()
+  : flagsAndType(0),
+	srcAddress(0),
+	destAddress(0),
+	messageId(0),
+	fragmentOffset(0),
+	crc(0) {
   }
 
   Header::Header( ByteBuffer& src )
@@ -33,19 +39,15 @@ namespace nRFTP {
   }
 
   void Header::setFlag(uint8_t flagNum, bool value){
-#ifdef ARDUINO
     if (value){
       bitSet(flagsAndType,8-flagNum);
     } else {
       bitClear(flagsAndType,8-flagNum);
     }
-#endif
   }
 
   bool Header::getFlag(uint8_t flagNum){
-#ifdef ARDUINO
     return bitRead(flagsAndType,8-flagNum) > 0;
-#endif
   }
 
   uint8_t Header::getType(){
@@ -57,9 +59,7 @@ namespace nRFTP {
   }
 
   bool Header::isResponseFromFirstByte( uint8_t firstByteOfReadBuffer){
-#ifdef ARDUINO
 	  return bitRead(firstByteOfReadBuffer,8-FLAG_IS_RESPONSE) > 0;
-#endif
   }
 
 #if DEBUG_HEADER == 1

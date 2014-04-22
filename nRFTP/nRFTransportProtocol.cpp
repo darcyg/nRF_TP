@@ -18,8 +18,13 @@ namespace nRFTP {
 #endif
 
 	  nRFTransportProtocol::nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address)
-      : physicalLayer(_physicalLayer),
-        address(_address){
+      : address(_address),
+        physicalLayer(_physicalLayer),
+        messageHandler(0),
+        readedType(0),
+        readedIsResponse(false),
+        waitingForPingResponse(0),
+        currentlyPingingAddress(0){
 #ifndef ARDUINO
 		  startTime = Util::millisSinceEpoch();
 #endif
@@ -47,7 +52,7 @@ namespace nRFTP {
 	RFLOGLN("Ping request sent!");
 	pingMessage.header.printHeader();
 #endif
-		  bool res = sendMessage(bb, destAddress);
+		  sendMessage(bb, destAddress);
       }
 
 

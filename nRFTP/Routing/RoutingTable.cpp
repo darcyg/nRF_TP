@@ -82,6 +82,7 @@ bool RoutingTable::isElement(uint16_t _destinationAddress) {
 		else
 			return false;
 	}
+	return false;
 }
 
 uint16_t RoutingTable::getNextHopAddress(uint16_t destinationAddress){
@@ -92,6 +93,7 @@ uint16_t RoutingTable::getNextHopAddress(uint16_t destinationAddress){
 			return elements[i].nextHop;
 		}
 	}
+	return -1;
 }
 
 } /* namespace nRFTP */

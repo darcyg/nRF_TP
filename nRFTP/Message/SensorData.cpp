@@ -19,6 +19,8 @@ namespace nRFTP{
 	    : Message(_srcAddress,_destAddress,Message::TYPE_SENSORDATA), sensorType(_sensorType), sensorData(_sensorData){
 	    }
 
+	SensorData::SensorData():Message(0,0,Message::TYPE_SENSORDATA){}
+
 	void SensorData::copyToByteBuffer(ByteBuffer& dest){
 		  Message::copyToByteBuffer(dest);
 		  dest.putByte(sensorType);

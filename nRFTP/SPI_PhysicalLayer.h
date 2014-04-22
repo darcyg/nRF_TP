@@ -7,6 +7,7 @@
 #include <stdint.h>
 #endif
 #include "IPhysicalLayer.h"
+#include "Message/SensorData.h"
 
 namespace nRFTP{
 
@@ -18,6 +19,11 @@ namespace nRFTP{
       bool available(void);
       bool read( void* buf, uint8_t len );
       void begin(void);
+
+      int test_readed_messages;
+      int test_available_counter;
+      SensorData test_data[15];
+      uint8_t test_buffer[Message::SIZE];
 
     protected:
 

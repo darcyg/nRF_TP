@@ -1,4 +1,5 @@
 #include "Util.h"
+#include <sys/time.h>
 
 namespace nRFTP {
 
@@ -17,5 +18,6 @@ namespace nRFTP {
       uint64_t Util::millisSinceStart(){
     	  return millisSinceEpoch() - nRFTP::nRFTransportProtocol::startTime;
       }
+
 #endif
 }

@@ -15,6 +15,7 @@ namespace nRFTP{
       virtual bool available(void) = 0;
       virtual bool read( void* buf, uint8_t len ) = 0;
       virtual void begin(void) = 0;
+      virtual ~IPhysicalLayer(){}
   };
 
 }
