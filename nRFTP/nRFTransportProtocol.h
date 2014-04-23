@@ -29,6 +29,8 @@ namespace nRFTP {
       bool available(void);
       bool read( ByteBuffer& buf );
 
+      nRFTP::RoutingTable routing;
+
       void run(void);
 
       static bool doPing;
@@ -48,7 +50,6 @@ namespace nRFTP {
       uint16_t readedType;
       bool readedIsResponse;
 
-      nRFTP::RoutingTable routing;
       nRFTP::MessageBuffer messageBuffer;
 
       unsigned long waitingForPingResponse;

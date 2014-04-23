@@ -15,7 +15,7 @@
 
 using namespace nRFTP;
 
-const uint16_t SELF_ADDRESS = 22;
+const uint16_t SELF_ADDRESS = 66;
 
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
@@ -123,9 +123,9 @@ void loop() {
 	delay(3);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    if (addr == 'rt') {
+    if (addr[0] == 'r' && addr[1] == 't') {
     	transportProtocol.routing.printRoutingTable();
-    } else if (addr == 'nt'){
+    } else if (addr[0] == 'n' && addr[1] == 't'){
     	// TODO: neighborhoodTable print
     } else {
     	transportProtocol.ping((uint16_t)atoi(addr));
