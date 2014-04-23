@@ -51,7 +51,6 @@ namespace nRFTP {
 		  currentlyPingingAddress = destAddress;
 #if(DEBUG_TL)
 	RFLOGLN("Ping request sent!");
-	pingMessage.header.printHeader();
 #endif
 		  sendMessage(bb, destAddress);
       }
@@ -76,8 +75,6 @@ namespace nRFTP {
 
     	  activity_counter++;
 
-    	  routing.printRoutingTable();
-
     	  if(routing.isElement(destAddress)) {
     		  routing.resetActivity(destAddress);
     		  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(routing.getNextHopAddress(destAddress)));
@@ -93,9 +90,12 @@ namespace nRFTP {
 				  bb.reset();
 				  routeMessage.copyToByteBuffer(bb);
 
+				  if(!messageBuffer.isElement(routeMessage.header.messageId, routeMessage.header.srcAddress)) {
+					  messageBuffer.newElement(routeMessage.header.flagsAndType, routeMessage.header.messageId, routeMessage.header.srcAddress, routeMessage.header.destAddress);
+				  }
+
 #if(DEBUG_TL)
 	RFLOGLN("New destAddress. Route request sent!");
-	routeMessage.header.printHeader();
 #endif
 				  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(broadcastAddress));
     		  }
@@ -124,9 +124,6 @@ namespace nRFTP {
         }
 
         if (available()){
-#if(DEBUG_TL)
-    RFLOGLN("New message!");
-#endif
           ByteBuffer bb(readBuffer);
           read(bb);
           readedType = Message::getTypeFromReadBuffer(readBuffer);
@@ -160,7 +157,6 @@ namespace nRFTP {
 					pingMessage.copyToByteBuffer(bb);
 #if(DEBUG_TL)
 	RFLOGLN("Ping response sent!");
-	pingMessage.header.printHeader();
 #endif
 
 					RFDELAY(20);
@@ -191,7 +187,6 @@ namespace nRFTP {
                 			sendMessage(bb, routeMessage.header.destAddress);
 #if(DEBUG_TL)
     RFLOGLN("Request arrived. Route response sent!");
-	routeMessage.header.printHeader();
 #endif
                 		}
                 		else{
@@ -211,7 +206,6 @@ namespace nRFTP {
 								sendMessage(bb, broadcastAddress);
 #if(DEBUG_TL)
     RFLOGLN("Route request sent broadcast!");
-	routeMessage.header.printHeader();
 #endif
                     		}
                 		}
@@ -243,7 +237,6 @@ namespace nRFTP {
                 			sendMessage(bb, routeMessage.header.destAddress);
 #if(DEBUG_TL)
     RFLOGLN("Route response sent!");
-	routeMessage.header.printHeader();
 #endif
                 		}
                 	}

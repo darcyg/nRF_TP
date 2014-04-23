@@ -15,7 +15,6 @@ namespace nRFTP {
 	class MessageBuffer {
 		public:
 			static const int size = 5; //size of the table
-			uint8_t elementNum; //number of actual elements
 
 			MessageBuffer();
 
