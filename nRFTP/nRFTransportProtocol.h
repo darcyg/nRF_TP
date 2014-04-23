@@ -13,7 +13,7 @@ namespace nRFTP {
 
   class nRFTransportProtocol{
     public:
-	  static const uint16_t broadcastAddress = 0xffff;
+	  static const uint16_t broadcastAddress = 99;
 
 	  nRFTransportProtocol(IPhysicalLayer* _physicalLayer, uint16_t _address);
       void begin(IMessageHandler* _messageHandler);

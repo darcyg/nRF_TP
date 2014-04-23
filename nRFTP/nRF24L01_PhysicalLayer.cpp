@@ -3,6 +3,7 @@
 #include "Message/Message.h"
 #include <nRF24L01.h>
 #include <nRFTransportProtocol.h>
+#include "Util/Util.h"
 
 
 #define DEBUG_PL 1
@@ -18,7 +19,7 @@ namespace nRFTP{
     radio.setRetries(15,15);
     radio.setPayloadSize(Message::SIZE);
     radio.openReadingPipe(0,selfAddress);
-    radio.openReadingPipe(1,nRFTransportProtocol::broadcastAddress);
+    radio.openReadingPipe(1,Util::TPAddress_to_nRF24L01Address(nRFTransportProtocol::broadcastAddress));
     radio.startListening();
 
 #if DEBUG_PL == 1
@@ -38,7 +39,7 @@ namespace nRFTP{
     result = radio.write(buf,len);
 
     radio.openReadingPipe(0,selfAddress);
-    radio.openReadingPipe(1,nRFTransportProtocol::broadcastAddress);
+    radio.openReadingPipe(1,Util::TPAddress_to_nRF24L01Address(nRFTransportProtocol::broadcastAddress));
     radio.startListening();
 
     return result;
