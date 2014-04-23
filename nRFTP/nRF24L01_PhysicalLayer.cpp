@@ -21,7 +21,7 @@ namespace nRFTP{
     radio.openReadingPipe(0,selfAddress);
     radio.openReadingPipe(1,Util::TPAddress_to_nRF24L01Address(nRFTransportProtocol::broadcastAddress));
     radio.setAutoAck(1, false);
-
+    radio.startListening();
 
 #if DEBUG_PL == 1
     Serial.println("Physical layer begin logical address, address: ");
