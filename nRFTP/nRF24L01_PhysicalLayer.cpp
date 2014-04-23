@@ -19,12 +19,7 @@ namespace nRFTP{
     radio.setRetries(15,15);
     radio.setPayloadSize(Message::SIZE);
     radio.openReadingPipe(0,selfAddress);
-<<<<<<< HEAD
     radio.openReadingPipe(1,Util::TPAddress_to_nRF24L01Address(nRFTransportProtocol::broadcastAddress));
-=======
-    radio.openReadingPipe(1,nRFTransportProtocol::broadcastAddress);
-    radio.setAutoAck(1, false);
->>>>>>> f148b679b5218d344433327192b17b022937e8e3
     radio.startListening();
 
 #if DEBUG_PL == 1
