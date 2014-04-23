@@ -34,16 +34,11 @@ namespace nRFTP{
 
     radio.stopListening();
 
-    if(destAddress == nRFTransportProtocol::broadcastAddress) {
-    	radio.setAutoAck( false );
-    }
-
     radio.openWritingPipe(destAddress);
     result = radio.write(buf,len);
 
     radio.openReadingPipe(0,selfAddress);
     radio.openReadingPipe(1,nRFTransportProtocol::broadcastAddress);
-    radio.setAutoAck( true );
     radio.startListening();
 
     return result;
