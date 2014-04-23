@@ -19,7 +19,7 @@ RoutingTable::~RoutingTable() {
 
 void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
 
-	//TODO Ha tele van a tabla, akkor megkeressuk a legritkabban hasznalt cimet, es annak a helyere irjuk be az ujat.
+	if(!isElement(_destinationAddress)) {
 
 	elements[elementNum].destinationAddress = _destinationAddress;
 	elements[elementNum].nextHop = _nextHop;
@@ -29,6 +29,7 @@ void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, u
 	elements[elementNum].reserved = _reserved;
 
 	elementNum++;
+	}
 
 }
 
