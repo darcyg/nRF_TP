@@ -200,15 +200,17 @@ namespace nRFTP {
     RFLOGLN("New element in the table!");
 #endif
                 			}
-                			routeMessage.fromAddress = address;
-                			bb.reset();
-                			routeMessage.copyToByteBuffer(bb);
-                			RFDELAY(20);
-                			sendMessage(bb, broadcastAddress);
+                			if(!routing.isElement(routeMessage.header.destAddress)) {
+								routeMessage.fromAddress = address;
+								bb.reset();
+								routeMessage.copyToByteBuffer(bb);
+								RFDELAY(20);
+								sendMessage(bb, broadcastAddress);
 #if(DEBUG_TL)
     RFLOGLN("Route request sent broadcast!");
 	routeMessage.header.printHeader();
 #endif
+                			}
                 		}
 
                 	}
