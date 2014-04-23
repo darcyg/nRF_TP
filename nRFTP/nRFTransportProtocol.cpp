@@ -72,21 +72,24 @@ namespace nRFTP {
 
 
       bool nRFTransportProtocol::sendMessage(ByteBuffer& bb, uint16_t destAddress){
+
+    	  activity_counter++;
+
     	  if(routing.isElement(destAddress)) {
+    		  routing.resetActivity(destAddress);
     		  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(routing.getNextHopAddress(destAddress)));
     	  }
     	  else {
     		  if(destAddress == broadcastAddress) {
     			 return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(broadcastAddress));
     		  } else {
-				  RouteMessage routeMessage(bb);
-				  routeMessage.header.srcAddress = address;
-				  routeMessage.header.destAddress = destAddress;
+				  RouteMessage routeMessage(address, destAddress);
 				  routeMessage.header.setFlag(routeMessage.header.FLAG_IS_RESPONSE, 0);
 				  routeMessage.fromAddress = address;
 
 				  bb.reset();
-				  RFDELAY(20);
+				  routeMessage.copyToByteBuffer(bb);
+
 #if(DEBUG_TL)
 	RFLOGLN("New destAddress. Route request sent!");
 	routeMessage.header.printHeader();
@@ -106,6 +109,12 @@ namespace nRFTP {
       }
 
       void nRFTransportProtocol::run(void){
+
+    	if(activity_counter >= 2)
+    	{
+    		routing.decreaseActivity();
+    	}
+
         if (waitingForPingResponse > 0){
         	checkForPingTimeOut();
         }
@@ -158,7 +167,7 @@ namespace nRFTP {
                 	if(!isResponse){ 		//Request
                 		if(routeMessage.header.destAddress == address){
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
-                				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
                 			}
                 			uint16_t tmp = routeMessage.header.srcAddress;
                 			routeMessage.header.srcAddress = routeMessage.header.destAddress;
@@ -177,7 +186,7 @@ namespace nRFTP {
                 		}
                 		else{
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
-                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
                 			}
                 			routeMessage.fromAddress = address;
                 			bb.reset();
@@ -194,7 +203,7 @@ namespace nRFTP {
                 	else {		//Response
                 		if(routeMessage.header.destAddress == address){
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
-                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
                 			}
 #if(DEBUG_TL)
                 			RFLOGLN("Route complete!");
@@ -202,7 +211,7 @@ namespace nRFTP {
                 		}
                 		else {
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
-                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
                 			}
                 			routeMessage.fromAddress = address;
                 			bb.reset();

@@ -41,6 +41,8 @@ namespace nRFTP {
       IPhysicalLayer* physicalLayer;
       IMessageHandler* messageHandler;
 
+      uint16_t activity_counter;
+
       uint8_t readBuffer[Message::SIZE];
       uint16_t readedType;
       bool readedIsResponse;

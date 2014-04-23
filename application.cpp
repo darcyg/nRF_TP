@@ -16,9 +16,8 @@
 using namespace nRFTP;
 
 const uint16_t SELF_ADDRESS = 11111;
-const uint16_t BROADCAST_ADDRESS = 0xFFFF;
 
-nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS), 9, 10);
+nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
 
 class SensorNetworkMessageHandler : public IMessageHandler {
@@ -97,6 +96,9 @@ class SensorNetworkMessageHandler : public IMessageHandler {
 
 }sensorNetworkMessageHandler;
 
+void timerInt() {
+
+}
 
 void setup() {
   Serial.begin(57600);
@@ -109,12 +111,11 @@ void setup() {
   pinMode(BATTERY_PIN, INPUT);
   pinMode(CURRENT_PIN, INPUT);
   pinMode(BATT_MEASURE_EN, OUTPUT);
+
 }
 
 void loop() {
   transportProtocol.run();
-
-
 
   if ( Serial.available() )
   {
@@ -122,10 +123,8 @@ void loop() {
 	delay(3);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    if( nRFTransportProtocol::doPing && i < 20){
-    	nRFTransportProtocol::doPing = false;
-    	transportProtocol.ping((uint16_t)atoi(addr));
-    	i++;
-    }
-  }
+    transportProtocol.ping((uint16_t)atoi(addr));
+   }
 }
+
+

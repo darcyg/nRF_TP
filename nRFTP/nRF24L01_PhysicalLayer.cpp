@@ -2,13 +2,14 @@
 #include "nRF24L01_PhysicalLayer.h"
 #include "Message/Message.h"
 #include <nRF24L01.h>
+#include <nRFTransportProtocol.h>
 
 
 #define DEBUG_PL 0
 
 namespace nRFTP{
 
-  nRF24L01_PhysicalLayer::nRF24L01_PhysicalLayer(uint64_t _selfAddress, uint64_t _broadcastAddress, uint8_t _cepin, uint8_t _cspin) : radio(_cepin, _cspin), broadcastAddress(_broadcastAddress), selfAddress(_selfAddress) {
+  nRF24L01_PhysicalLayer::nRF24L01_PhysicalLayer(uint64_t _selfAddress, uint8_t _cepin, uint8_t _cspin) : radio(_cepin, _cspin), selfAddress(_selfAddress) {
 
   }
 
@@ -17,7 +18,7 @@ namespace nRFTP{
     radio.setRetries(15,15);
     radio.setPayloadSize(Message::SIZE);
     radio.openReadingPipe(0,selfAddress);
-    radio.openReadingPipe(1,broadcastAddress);
+    radio.openReadingPipe(1,nRFTransportProtocol::broadcastAddress);
     radio.startListening();
 
 #if DEBUG_PL == 1
@@ -35,7 +36,7 @@ namespace nRFTP{
     result = radio.write(buf,len);
 
     radio.openReadingPipe(0,selfAddress);
-    radio.openReadingPipe(1,broadcastAddress);
+    radio.openReadingPipe(1,nRFTransportProtocol::broadcastAddress);
     radio.startListening();
 
     return result;

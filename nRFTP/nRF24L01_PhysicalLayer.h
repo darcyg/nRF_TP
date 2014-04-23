@@ -11,7 +11,7 @@ namespace nRFTP{
 
   class nRF24L01_PhysicalLayer : public IPhysicalLayer {
     public:
-      nRF24L01_PhysicalLayer(uint64_t _selfAddress, uint64_t _broadcastAddress, uint8_t _cepin, uint8_t _cspin);
+      nRF24L01_PhysicalLayer(uint64_t _selfAddress, uint8_t _cepin, uint8_t _cspin);
 
       bool write( const void* buf, uint8_t len, uint64_t destAddress);
       bool available(void);
@@ -21,7 +21,6 @@ namespace nRFTP{
     protected:
       RF24 radio;
       uint64_t selfAddress;
-      uint64_t broadcastAddress;
   };
 
 }

@@ -12,8 +12,6 @@ namespace nRFTP {
 
 RoutingTable::RoutingTable() {
 	elementNum = 0;
-
-
 }
 
 RoutingTable::~RoutingTable() {
@@ -96,4 +94,21 @@ uint16_t RoutingTable::getNextHopAddress(uint16_t destinationAddress){
 	return -1;
 }
 
+void RoutingTable::resetActivity(uint16_t destinationAddress) {
+	for(int i=0; i < elementNum; i++)
+	{
+		if(destinationAddress == elements[i].destinationAddress)
+		{
+			elements[i].lastActivity = 255;
+		}
+	}
+}
+
+void RoutingTable::decreaseActivity()
+{
+	for(int i=0; i < elementNum; i++)
+	{
+		elements[i].lastActivity--;
+	}
+}
 } /* namespace nRFTP */

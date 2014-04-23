@@ -25,6 +25,8 @@ namespace nRFTP {
 			void deleteElement(uint16_t destinationAddress);
 			void printRoutingTable();							//Csak debughoz kell, sorosra k�ld.
 			bool isElement (uint16_t destinationAddress);
+            void resetActivity(uint16_t destinationAddress);
+            void decreaseActivity();
 			uint16_t getNextHopAddress(uint16_t destinationAddress);
 
 			RoutingTableElement elements[size];
