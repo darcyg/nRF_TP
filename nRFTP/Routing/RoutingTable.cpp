@@ -19,18 +19,16 @@ RoutingTable::~RoutingTable() {
 
 void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
 
-	if(!isElement(_destinationAddress)) {
+		if(elementNum < size) {
+			elements[elementNum].destinationAddress = _destinationAddress;
+			elements[elementNum].nextHop = _nextHop;
+			elements[elementNum].rtt = _rtt;
+			elements[elementNum].ttl = _ttl;
+			elements[elementNum].lastActivity = _lastActivity;
+			elements[elementNum].reserved = _reserved;
 
-	elements[elementNum].destinationAddress = _destinationAddress;
-	elements[elementNum].nextHop = _nextHop;
-	elements[elementNum].rtt = _rtt;
-	elements[elementNum].ttl = _ttl;
-	elements[elementNum].lastActivity = _lastActivity;
-	elements[elementNum].reserved = _reserved;
-
-	elementNum++;
-	}
-
+			elementNum++;
+		}
 }
 
 void RoutingTable::deleteElement(uint16_t _destinationAddress) {
@@ -74,12 +72,10 @@ void RoutingTable::printRoutingTable() {
 }
 
 bool RoutingTable::isElement(uint16_t _destinationAddress) {
-	for(int i = 0; i <= elementNum; i++) {
+	for(int i = 0; i < elementNum; i++) {
 		if(elements[i].destinationAddress == _destinationAddress) {
 			return true;
 		}
-		else
-			return false;
 	}
 	return false;
 }
