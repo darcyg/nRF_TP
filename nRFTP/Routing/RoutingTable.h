@@ -23,7 +23,7 @@ namespace nRFTP {
 
 			void newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved);
 			void deleteElement(uint16_t destinationAddress);
-			void printRoutingTable();							//Csak debughoz kell, sorosra k�ld.
+			void printRoutingTable();							//Csak debughoz kell, sorosra kuld.
 			bool isElement (uint16_t destinationAddress);
             void resetActivity(uint16_t destinationAddress);
             void decreaseActivity();

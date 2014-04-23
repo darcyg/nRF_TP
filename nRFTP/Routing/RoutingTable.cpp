@@ -19,7 +19,7 @@ RoutingTable::~RoutingTable() {
 
 void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
 
-	//TODO Ha tele van a t�bla, akkor megkeress�k a legritk�bban haszn�lt c�met, �s annak a hely�re �rjuk be az �jat.
+	//TODO Ha tele van a tabla, akkor megkeressuk a legritkabban hasznalt cimet, es annak a helyere irjuk be az ujat.
 
 	elements[elementNum].destinationAddress = _destinationAddress;
 	elements[elementNum].nextHop = _nextHop;
