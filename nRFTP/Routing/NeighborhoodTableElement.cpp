@@ -9,7 +9,10 @@
 
 namespace nRFTP {
 
-NeighborhoodTableElement::NeighborhoodTableElement() {
+NeighborhoodTableElement::NeighborhoodTableElement():
+		neighborAddress(0),
+		rtt(0),
+		reliability(0) {
 	// TODO Auto-generated constructor stub
 
 }

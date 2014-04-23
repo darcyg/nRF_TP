@@ -33,7 +33,7 @@ void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, u
 
 void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 
-	for(int i= 0; i <= RoutingTable::size; i++)
+	for(int i= 0; i < RoutingTable::size; i++)
 	{
 		if(elements[i].destinationAddress == _destinationAddress)
 		{
@@ -44,7 +44,7 @@ void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 			elements[i].lastActivity = 0;
 			elements[i].reserved = 0;
 
-			for(int j = i; j <= elementNum; j++){
+			for(int j = i; j < elementNum-1; j++){
 				elements[j].destinationAddress = elements[j+1].destinationAddress;
 				elements[j].nextHop = elements[j+1].nextHop;
 				elements[j].rtt = elements[j+1].rtt;
