@@ -60,15 +60,17 @@ void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 
 void RoutingTable::printRoutingTable() {
 
+	RFLOGLN("-------- print routing -------");
 	for(int i = 0; i < RoutingTable::elementNum; i++) {
-		RFLOGLN("-------- print routing -------");
+		RFLOG("Number: "); 			RFLOGLN(i);
 		RFLOG("Dest:"); 			RFLOGLN(elements[i].destinationAddress);
 		RFLOG("Next hop:"); 		RFLOGLN(elements[i].nextHop);
-		RFLOG("RTT:"); 			RFLOGLN(elements[i].rtt);
-		RFLOG("TTL:"); 			RFLOGLN(elements[i].ttl);
-		RFLOG("Last Activity:"); RFLOGLN(elements[i].lastActivity);
-		RFLOGLN("------------------------------");
+		RFLOG("RTT:"); 				RFLOGLN(elements[i].rtt);
+		RFLOG("TTL:"); 				RFLOGLN(elements[i].ttl);
+		RFLOG("Last Activity:"); 	RFLOGLN(elements[i].lastActivity);
+		RFLOGLN("");
 	}
+	RFLOGLN("------------------------------");
 }
 
 bool RoutingTable::isElement(uint16_t _destinationAddress) {

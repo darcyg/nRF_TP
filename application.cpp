@@ -123,8 +123,14 @@ void loop() {
 	delay(3);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    transportProtocol.ping((uint16_t)atoi(addr));
-   }
+    if (addr == 'rt') {
+    	transportProtocol.routing.printRoutingTable();
+    } else if (addr == 'nt'){
+    	// TODO: neighborhoodTable print
+    } else {
+    	transportProtocol.ping((uint16_t)atoi(addr));
+    }
+  }
 }
 
 

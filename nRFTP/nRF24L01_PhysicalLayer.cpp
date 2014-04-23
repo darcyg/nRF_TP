@@ -24,9 +24,9 @@ namespace nRFTP{
     radio.startListening();
 
 #if DEBUG_PL == 1
-    Serial.println("Physical layer begin logical address, address: ");
-    Serial.println((long)((selfAddress&0xffffLL)));
-    Serial.println((long)((nRFTransportProtocol::broadcastAddress&0xffffLL)));
+    RFLOGLN("Physical layer begin logical address, address: ");
+    RFLOGLN((long)((selfAddress&0xffffLL)));
+    RFLOGLN((long)((nRFTransportProtocol::broadcastAddress&0xffffLL)));
 #endif
   }
 
