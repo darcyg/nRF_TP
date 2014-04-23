@@ -75,6 +75,8 @@ namespace nRFTP {
 
     	  activity_counter++;
 
+    	  routing.printRoutingTable();
+
     	  if(routing.isElement(destAddress)) {
     		  routing.resetActivity(destAddress);
     		  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(routing.getNextHopAddress(destAddress)));
@@ -113,6 +115,7 @@ namespace nRFTP {
     	if(activity_counter >= 2)
     	{
     		routing.decreaseActivity();
+    		activity_counter = 0;
     	}
 
         if (waitingForPingResponse > 0){
@@ -120,6 +123,9 @@ namespace nRFTP {
         }
 
         if (available()){
+#if(DEBUG_TL)
+    RFLOGLN("New message!");
+#endif
           ByteBuffer bb(readBuffer);
           read(bb);
           readedType = Message::getTypeFromReadBuffer(readBuffer);
@@ -168,6 +174,9 @@ namespace nRFTP {
                 		if(routeMessage.header.destAddress == address){
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+#if(DEBUG_TL)
+    RFLOGLN("New element in the table!");
+#endif
                 			}
                 			uint16_t tmp = routeMessage.header.srcAddress;
                 			routeMessage.header.srcAddress = routeMessage.header.destAddress;
@@ -187,6 +196,9 @@ namespace nRFTP {
                 		else{
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+#if(DEBUG_TL)
+    RFLOGLN("New element in the table!");
+#endif
                 			}
                 			routeMessage.fromAddress = address;
                 			bb.reset();
@@ -204,14 +216,20 @@ namespace nRFTP {
                 		if(routeMessage.header.destAddress == address){
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+#if(DEBUG_TL)
+    RFLOGLN("New element in the table!");
+#endif
                 			}
 #if(DEBUG_TL)
-                			RFLOGLN("Route complete!");
+    RFLOGLN("Route complete!");
 #endif
                 		}
                 		else {
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+#if(DEBUG_TL)
+    RFLOGLN("New element in the table!");
+#endif
                 			}
                 			routeMessage.fromAddress = address;
                 			bb.reset();

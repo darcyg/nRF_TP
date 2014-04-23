@@ -5,7 +5,7 @@
 #include <nRFTransportProtocol.h>
 
 
-#define DEBUG_PL 0
+#define DEBUG_PL 1
 
 namespace nRFTP{
 
@@ -23,7 +23,8 @@ namespace nRFTP{
 
 #if DEBUG_PL == 1
     Serial.println("Physical layer begin logical address, address: ");
-    Serial.println((long)((address&0xffffLL)));
+    Serial.println((long)((selfAddress&0xffffLL)));
+    Serial.println((long)((nRFTransportProtocol::broadcastAddress&0xffffLL)));
 #endif
   }
 
@@ -32,11 +33,17 @@ namespace nRFTP{
     bool result;
 
     radio.stopListening();
+
+    if(destAddress == nRFTransportProtocol::broadcastAddress) {
+    	radio.setAutoAck( false );
+    }
+
     radio.openWritingPipe(destAddress);
     result = radio.write(buf,len);
 
     radio.openReadingPipe(0,selfAddress);
     radio.openReadingPipe(1,nRFTransportProtocol::broadcastAddress);
+    radio.setAutoAck( true );
     radio.startListening();
 
     return result;
