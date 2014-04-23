@@ -3,6 +3,7 @@
 
 #include "Message/Message.h"
 #include "Routing/RoutingTable.h"
+#include <Message/MessageBuffer.h>
 
 #define DEBUG_NRFTP 1
 
@@ -48,6 +49,7 @@ namespace nRFTP {
       bool readedIsResponse;
 
       nRFTP::RoutingTable routing;
+      nRFTP::MessageBuffer messageBuffer;
 
       unsigned long waitingForPingResponse;
       uint16_t currentlyPingingAddress;

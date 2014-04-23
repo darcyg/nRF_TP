@@ -23,6 +23,7 @@ namespace nRFTP{
 	  uint16_t srcAddress;
 	  uint16_t destAddress;
 	  MessageBufferElement(uint8_t _flagsAndType, uint16_t _messageId, uint16_t _srcAddress, uint16_t _destAddress);
+	  MessageBufferElement();
   };
 
 }

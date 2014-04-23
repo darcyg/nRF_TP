@@ -5,6 +5,7 @@
 #include "Util/ByteBuffer.h"
 #include "IPhysicalLayer.h"
 #include "IMessageHandler.h"
+#include <Message/MessageBuffer.h>
 
 
 #define DEBUG_TL 1
@@ -200,7 +201,9 @@ namespace nRFTP {
     RFLOGLN("New element in the table!");
 #endif
                 			}
-                			if(!routing.isElement(routeMessage.header.destAddress)) {
+                    		if(!messageBuffer.isElement(routeMessage.header.messageId, routeMessage.header.srcAddress)) {
+                    			messageBuffer.newElement(routeMessage.header.flagsAndType, routeMessage.header.messageId, routeMessage.header.srcAddress, routeMessage.header.destAddress);
+
 								routeMessage.fromAddress = address;
 								bb.reset();
 								routeMessage.copyToByteBuffer(bb);
@@ -210,7 +213,7 @@ namespace nRFTP {
     RFLOGLN("Route request sent broadcast!");
 	routeMessage.header.printHeader();
 #endif
-                			}
+                    		}
                 		}
 
                 	}

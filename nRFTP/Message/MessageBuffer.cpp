@@ -4,7 +4,7 @@
  *  Created on: 2014.04.23.
  *      Author: Molnár Bálint
  */
-
+#include <Message/MessageBuffer.h>
 
 namespace nRFTP {
 
@@ -25,7 +25,7 @@ void MessageBuffer::newElement(uint8_t _flagsAndType, uint16_t _messageId, uint1
 
 void MessageBuffer::deleteElement(uint16_t _messageId) {
 
-	for(int i= 0; i < RoutingTable::size; i++)
+	for(int i= 0; i < MessageBuffer::size; i++)
 	{
 		if(elements[i].messageId == _messageId)
 		{
@@ -46,9 +46,9 @@ void MessageBuffer::deleteElement(uint16_t _messageId) {
 	}
 }
 
-bool MessageBuffer::isElement(uint16_t _messageId) {
+bool MessageBuffer::isElement(uint16_t _messageId, uint16_t _srcAddress) {
 	for(int i = 0; i < elementNum; i++) {
-		if(elements[i].messageId == _messageId) {
+		if(elements[i].messageId == _messageId && elements[i].srcAddress == _srcAddress) {
 			return true;
 		}
 	}
