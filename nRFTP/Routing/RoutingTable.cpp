@@ -84,7 +84,7 @@ void RoutingTable::printRoutingTable() {
 		RFLOG("Last Activity:"); 	RFLOGLN(elements[i].lastActivity);
 		RFLOGLN("");
 	}
-	RFLOGLN("------------------------------");
+	RFLOGLN("---------------END---------------");
 }
 
 bool RoutingTable::isElement(uint16_t _destinationAddress) {

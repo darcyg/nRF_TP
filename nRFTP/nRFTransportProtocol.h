@@ -30,6 +30,7 @@ namespace nRFTP {
       bool read( ByteBuffer& buf );
 
       nRFTP::RoutingTable routing;
+      nRFTP::NeighborhoodTable neighborhood;
 
       void run(void);
 

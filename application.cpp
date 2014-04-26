@@ -126,7 +126,7 @@ void loop() {
     if (addr[0] == 'r' && addr[1] == 't') {
     	transportProtocol.routing.printRoutingTable();
     } else if (addr[0] == 'n' && addr[1] == 't'){
-    	// TODO: neighborhoodTable print
+    	transportProtocol.neighborhood.printNeighborhoodTable();
     } else {
     	transportProtocol.ping((uint16_t)atoi(addr));
     }

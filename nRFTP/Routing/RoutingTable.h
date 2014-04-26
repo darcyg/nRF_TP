@@ -15,7 +15,7 @@ namespace nRFTP {
 
 	class RoutingTable {
 		public:
-			static const int size = 10; //size of the table
+			static const uint8_t size = 10; //size of the table
 			uint8_t elementNum; //number of actual elements
 
 			RoutingTable();

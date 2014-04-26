@@ -172,7 +172,7 @@ namespace nRFTP {
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
 #if(DEBUG_TL)
-    RFLOGLN("New element in the table!");
+    RFLOGLN("New element in the routing table!");
 #endif
                 			}
                 			uint16_t tmp = routeMessage.header.srcAddress;
@@ -186,14 +186,14 @@ namespace nRFTP {
                 			RFDELAY(20);
                 			sendMessage(bb, routeMessage.header.destAddress);
 #if(DEBUG_TL)
-    RFLOGLN("Request arrived. Route response sent!");
+    RFLOGLN("Route request arrived. Route response sent!");
 #endif
                 		}
                 		else{
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
 #if(DEBUG_TL)
-    RFLOGLN("New element in the table!");
+    RFLOGLN("New element in the routing table!");
 #endif
                 			}
                     		if(!messageBuffer.isElement(routeMessage.header.messageId, routeMessage.header.srcAddress)) {
@@ -216,7 +216,7 @@ namespace nRFTP {
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
 #if(DEBUG_TL)
-    RFLOGLN("New element in the table!");
+    RFLOGLN("New element in the routing table!");
 #endif
                 			}
 #if(DEBUG_TL)
@@ -227,7 +227,7 @@ namespace nRFTP {
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
 #if(DEBUG_TL)
-    RFLOGLN("New element in the table!");
+    RFLOGLN("New element in the routing table!");
 #endif
                 			}
                 			routeMessage.fromAddress = address;
