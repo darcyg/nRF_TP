@@ -4,6 +4,7 @@
 #include "Message/Message.h"
 #include "Routing/RoutingTable.h"
 #include <Message/MessageBuffer.h>
+#include <Routing/NeighborhoodTable.h>
 
 #define DEBUG_NRFTP 1
 

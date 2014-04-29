@@ -136,34 +136,39 @@ namespace nRFTP {
     	    bool forwardToApp = true;
             switch (type){
             	case Message::TYPE_PING:
-            	  if (waitingForPingResponse != 0 && isResponse){
-                    messageHandler->pingResponseArrived((uint16_t)((uint16_t)RFMILLIS() - (uint16_t)waitingForPingResponse), currentlyPingingAddress );
-
-                    waitingForPingResponse = 0;
-                    currentlyPingingAddress = 0;
-                    doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
-            	  }
-
-				  if (!isResponse){
+            	{
 					PingMessage pingMessage(bb);
-					uint16_t tmp = pingMessage.header.srcAddress;
-					pingMessage.header.srcAddress = pingMessage.header.destAddress;
-					pingMessage.header.destAddress = tmp;
+            		if(pingMessage.header.destAddress == address) {
+					  if (waitingForPingResponse != 0 && isResponse){
+						messageHandler->pingResponseArrived((uint16_t)((uint16_t)RFMILLIS() - (uint16_t)waitingForPingResponse), currentlyPingingAddress );
 
-					pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
+						waitingForPingResponse = 0;
+						currentlyPingingAddress = 0;
+						doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
+					  }
+
+					  if (!isResponse){
+						uint16_t tmp = pingMessage.header.srcAddress;
+						pingMessage.header.srcAddress = pingMessage.header.destAddress;
+						pingMessage.header.destAddress = tmp;
+
+						pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
 
 
-					bb.reset();
-					pingMessage.copyToByteBuffer(bb);
+						bb.reset();
+						pingMessage.copyToByteBuffer(bb);
 #if(DEBUG_TL)
 	RFLOGLN("Ping response sent!");
 #endif
 
-					RFDELAY(20);
-					sendMessage(bb, pingMessage.header.destAddress);
-				  }
+						RFDELAY(20);
+						sendMessage(bb, pingMessage.header.destAddress);
+					  }
+            		} else {
+            			sendMessage(bb, pingMessage.header.destAddress);
+            		}
 				break;
-
+            	}
                 case Message::TYPE_ROUTE:
                 {
                 	RouteMessage routeMessage(bb);
