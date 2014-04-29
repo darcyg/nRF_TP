@@ -27,8 +27,6 @@ namespace nRFTP {
       : address(_address),
         physicalLayer(_physicalLayer),
         messageHandler(0),
-        readedType(0),
-        readedIsResponse(false),
         waitingForPingResponse(0),
         currentlyPingingAddress(0){
 #ifndef ARDUINO
@@ -127,10 +125,8 @@ namespace nRFTP {
           read(bb);
           Header header(bb);
 		  bb.reset();
-          if (header.destAddress == address || header.destAddress == broadcastAddress){
-			  readedType = header.getType();
-			  readedIsResponse = header.getFlag(Header::FLAG_IS_RESPONSE);
-			  handleMessage(bb,readedType, readedIsResponse);
+          if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
+			  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
           } else {
         	  sendMessage(bb, header.destAddress);
           }
