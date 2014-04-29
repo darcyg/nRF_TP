@@ -6,6 +6,7 @@ namespace nRFTP{
     RouteMessage::RouteMessage(ByteBuffer& src)
     : Message(src){
       fromAddress = src.getWord();
+      targetAddress = src.getWord();
     }
 
     RouteMessage::RouteMessage(uint16_t _srcAddress, uint16_t _destAddress)
@@ -15,6 +16,7 @@ namespace nRFTP{
     void RouteMessage::copyToByteBuffer(ByteBuffer& dest){
       Message::copyToByteBuffer(dest);
       dest.putWord(fromAddress);
+      dest.putWord(targetAddress);
     }
 
 }

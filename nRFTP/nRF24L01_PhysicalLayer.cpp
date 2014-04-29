@@ -31,12 +31,12 @@ namespace nRFTP{
   }
 
 
-  bool nRF24L01_PhysicalLayer::write( const void* buf, uint8_t len, uint64_t destAddress ){
+  bool nRF24L01_PhysicalLayer::write( const void* buf, uint8_t len, uint16_t destAddress ){
     bool result;
 
     radio.stopListening();
 
-    radio.openWritingPipe(destAddress);
+    radio.openWritingPipe(Util::TPAddress_to_nRF24L01Address(destAddress));
     result = radio.write(buf,len);
 
     radio.openReadingPipe(0,selfAddress);

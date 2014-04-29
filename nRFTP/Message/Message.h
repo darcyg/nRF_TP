@@ -28,9 +28,6 @@ namespace nRFTP {
       Message(uint16_t _srcAddress, uint16_t _destAddress, uint8_t _type);
       virtual ~Message(){}
 
-      static uint8_t getTypeFromReadBuffer(uint8_t* buffer);
-      static bool isResponseFromReadBuffer( uint8_t* buffer);
-
       virtual void copyToByteBuffer(ByteBuffer& dest);
 
       Header header;

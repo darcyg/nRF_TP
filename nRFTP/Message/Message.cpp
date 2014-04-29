@@ -14,15 +14,6 @@ namespace nRFTP {
     header.setType(_type);
   }
 
-  uint8_t Message::getTypeFromReadBuffer(uint8_t* buffer){
-    return Header::getTypeFromFirstByte(buffer[0]);
-  }
-
-  bool Message::isResponseFromReadBuffer( uint8_t* buffer ){
-	  return Header::isResponseFromFirstByte(buffer[0]);
-  }
-
-
   void  Message::copyToByteBuffer(ByteBuffer& dest){
     header.copyToByteBuffer(dest);
   }
