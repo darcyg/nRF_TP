@@ -42,7 +42,7 @@ namespace nRFTP{
   }
 
 
-  bool SPI_PhysicalLayer::write( const void* buf, uint8_t len, uint64_t destAddress ){
+  bool SPI_PhysicalLayer::write( const void* buf, uint8_t len, uint16_t destAddress ){
 	  return false;
   }
 

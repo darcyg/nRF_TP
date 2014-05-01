@@ -6,20 +6,24 @@
 #include "Message/SensorData.h"
 #include <IMessageHandler.h>
 #include "Util/ByteBuffer.h"
+#include "Sensor/OneWire.h"
+#include "Sensor/DallasTemperature.h"
 
 #define LIGHT_PIN A5
 #define BATTERY_PIN A4
 #define BATT_MEASURE_EN 6
 #define CURRENT_PIN A3
-#define TEMPERATURE_PIN 2
+#define ONE_WIRE_BUS 2
 
 using namespace nRFTP;
 
-const uint16_t SELF_ADDRESS = 11111;
-const uint16_t BROADCAST_ADDRESS = 0xFFFF;
+const uint16_t SELF_ADDRESS = 33;
 
-nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS),Util::TPAddress_to_nRF24L01Address(BROADCAST_ADDRESS), 9, 10);
+nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
 
 class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
@@ -63,7 +67,8 @@ class SensorNetworkMessageHandler : public IMessageHandler {
 
 						case SensorData::TYPE_TEMPERATURE:
 						{
-							// TODO OneWire protocol implement
+							sensors.requestTemperatures();
+							sensorData.sensorData = sensors.getTempCByIndex(0);
 							break;
 						}
 
@@ -97,7 +102,6 @@ class SensorNetworkMessageHandler : public IMessageHandler {
 
 }sensorNetworkMessageHandler;
 
-
 void setup() {
   Serial.begin(57600);
   transportProtocol.begin(&sensorNetworkMessageHandler);
@@ -109,12 +113,13 @@ void setup() {
   pinMode(BATTERY_PIN, INPUT);
   pinMode(CURRENT_PIN, INPUT);
   pinMode(BATT_MEASURE_EN, OUTPUT);
+
+  sensors.begin();
+
 }
 
 void loop() {
   transportProtocol.run();
-
-
 
   if ( Serial.available() )
   {
@@ -122,10 +127,11 @@ void loop() {
 	delay(3);
 	char addr[5];
     Serial.readBytes(addr, 5);
-    if( nRFTransportProtocol::doPing && i < 20){
-    	nRFTransportProtocol::doPing = false;
+    if (addr[0] == 'r' && addr[1] == 't') {			//routing table
+    	transportProtocol.routing.printRoutingTable();
+    } else if (addr[0] == 'n' && addr[1] == 't'){	//neighborhood table
+    	transportProtocol.neighborhood.printNeighborhoodTable();
+    } else
     	transportProtocol.ping((uint16_t)atoi(addr));
-    	i++;
     }
-  }
 }

@@ -15,7 +15,7 @@ namespace nRFTP{
     public:
 	  SPI_PhysicalLayer(uint8_t _cepin, uint8_t _cspin);
 
-      bool write( const void* buf, uint8_t len, uint64_t destAddress);
+      bool write( const void* buf, uint8_t len, uint16_t destAddress);
       bool available(void);
       bool read( void* buf, uint8_t len );
       void begin(void);

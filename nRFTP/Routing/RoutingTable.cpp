@@ -12,8 +12,6 @@ namespace nRFTP {
 
 RoutingTable::RoutingTable() {
 	elementNum = 0;
-
-
 }
 
 RoutingTable::~RoutingTable() {
@@ -21,22 +19,35 @@ RoutingTable::~RoutingTable() {
 
 void RoutingTable::newElement(uint16_t _destinationAddress, uint16_t _nextHop, uint8_t _rtt, uint8_t _ttl, uint8_t _lastActivity, uint8_t _reserved){
 
-	//TODO Ha tele van a t�bla, akkor megkeress�k a legritk�bban haszn�lt c�met, �s annak a hely�re �rjuk be az �jat.
+	int tmp = 0;
 
-	elements[elementNum].destinationAddress = _destinationAddress;
-	elements[elementNum].nextHop = _nextHop;
-	elements[elementNum].rtt = _rtt;
-	elements[elementNum].ttl = _ttl;
-	elements[elementNum].lastActivity = _lastActivity;
-	elements[elementNum].reserved = _reserved;
+	if(elementNum < size) {
+		elements[elementNum].destinationAddress = _destinationAddress;
+		elements[elementNum].nextHop = _nextHop;
+		elements[elementNum].rtt = _rtt;
+		elements[elementNum].ttl = _ttl;
+		elements[elementNum].lastActivity = _lastActivity;
+		elements[elementNum].reserved = _reserved;
 
-	elementNum++;
-
+		elementNum++;
+	} else {
+		for(int i = 0; i < elementNum; i++) {
+			if(elements[i].lastActivity < elements[tmp].lastActivity) {
+				tmp = i;
+			}
+		}
+		elements[tmp].destinationAddress = _destinationAddress;
+		elements[tmp].nextHop = _nextHop;
+		elements[tmp].rtt = _rtt;
+		elements[tmp].ttl = _ttl;
+		elements[tmp].lastActivity = _lastActivity;
+		elements[tmp].reserved = _reserved;
+	}
 }
 
 void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 
-	for(int i= 0; i <= RoutingTable::size; i++)
+	for(int i= 0; i < RoutingTable::size; i++)
 	{
 		if(elements[i].destinationAddress == _destinationAddress)
 		{
@@ -47,7 +58,7 @@ void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 			elements[i].lastActivity = 0;
 			elements[i].reserved = 0;
 
-			for(int j = i; j <= elementNum; j++){
+			for(int j = i; j < elementNum-1; j++){
 				elements[j].destinationAddress = elements[j+1].destinationAddress;
 				elements[j].nextHop = elements[j+1].nextHop;
 				elements[j].rtt = elements[j+1].rtt;
@@ -63,24 +74,24 @@ void RoutingTable::deleteElement(uint16_t _destinationAddress) {
 
 void RoutingTable::printRoutingTable() {
 
+	RFLOGLN("-------- print routing -------");
 	for(int i = 0; i < RoutingTable::elementNum; i++) {
-		RFLOGLN("-------- print routing -------");
+		RFLOG("Number: "); 			RFLOGLN(i);
 		RFLOG("Dest:"); 			RFLOGLN(elements[i].destinationAddress);
 		RFLOG("Next hop:"); 		RFLOGLN(elements[i].nextHop);
-		RFLOG("RTT:"); 			RFLOGLN(elements[i].rtt);
-		RFLOG("TTL:"); 			RFLOGLN(elements[i].ttl);
-		RFLOG("Last Activity:"); RFLOGLN(elements[i].lastActivity);
-		RFLOGLN("------------------------------");
+		RFLOG("RTT:"); 				RFLOGLN(elements[i].rtt);
+		RFLOG("TTL:"); 				RFLOGLN(elements[i].ttl);
+		RFLOG("Last Activity:"); 	RFLOGLN(elements[i].lastActivity);
+		RFLOGLN("");
 	}
+	RFLOGLN("---------------END---------------");
 }
 
 bool RoutingTable::isElement(uint16_t _destinationAddress) {
-	for(int i = 0; i <= elementNum; i++) {
+	for(int i = 0; i < elementNum; i++) {
 		if(elements[i].destinationAddress == _destinationAddress) {
 			return true;
 		}
-		else
-			return false;
 	}
 	return false;
 }
@@ -96,4 +107,21 @@ uint16_t RoutingTable::getNextHopAddress(uint16_t destinationAddress){
 	return -1;
 }
 
+void RoutingTable::resetActivity(uint16_t destinationAddress) {
+	for(int i=0; i < elementNum; i++)
+	{
+		if(destinationAddress == elements[i].destinationAddress)
+		{
+			elements[i].lastActivity = 255;
+		}
+	}
+}
+
+void RoutingTable::decreaseActivity()
+{
+	for(int i=0; i < elementNum; i++)
+	{
+		elements[i].lastActivity--;
+	}
+}
 } /* namespace nRFTP */

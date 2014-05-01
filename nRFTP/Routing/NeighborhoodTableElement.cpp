@@ -9,13 +9,16 @@
 
 namespace nRFTP {
 
-NeighborhoodTableElement::NeighborhoodTableElement() {
-	// TODO Auto-generated constructor stub
+	NeighborhoodTableElement::NeighborhoodTableElement():
+			neighborAddress(0),
+			rtt(0),
+			reliability(0) {
+		// TODO Auto-generated constructor stub
 
-}
+	}
 
-NeighborhoodTableElement::~NeighborhoodTableElement() {
-	// TODO Auto-generated destructor stub
-}
+	NeighborhoodTableElement::~NeighborhoodTableElement() {
+		// TODO Auto-generated destructor stub
+	}
 
 } /* namespace nRFTP */

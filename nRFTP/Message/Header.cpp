@@ -54,13 +54,6 @@ namespace nRFTP {
     return flagsAndType & typeMask;
   }
 
-  uint8_t Header::getTypeFromFirstByte( uint8_t firstByteOfReadBuffer){
-    return firstByteOfReadBuffer & typeMask;
-  }
-
-  bool Header::isResponseFromFirstByte( uint8_t firstByteOfReadBuffer){
-	  return bitRead(firstByteOfReadBuffer,8-FLAG_IS_RESPONSE) > 0;
-  }
 
 #if DEBUG_HEADER == 1
      void Header::printHeader(){

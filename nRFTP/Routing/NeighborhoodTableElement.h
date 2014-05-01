@@ -21,7 +21,9 @@ namespace nRFTP {
 		public:
 			uint16_t neighborAddress;
 			uint16_t rtt; //response time
-			uint8_t reliability;
+			uint8_t reliability; //ratio of lost packets and delivered packets (no ack / ack)
+			uint8_t lastActivity;
+			uint8_t reserved;  // not assigned to anything yet, available for use if needed
 
 			NeighborhoodTableElement();
 			virtual ~NeighborhoodTableElement();

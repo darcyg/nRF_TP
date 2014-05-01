@@ -3,6 +3,8 @@
 
 #include "Message/Message.h"
 #include "Routing/RoutingTable.h"
+#include <Message/MessageBuffer.h>
+#include <Routing/NeighborhoodTable.h>
 
 #define DEBUG_NRFTP 1
 
@@ -28,6 +30,9 @@ namespace nRFTP {
       bool available(void);
       bool read( ByteBuffer& buf );
 
+      nRFTP::RoutingTable routing;
+      nRFTP::NeighborhoodTable neighborhood;
+
       void run(void);
 
       static bool doPing;
@@ -41,11 +46,11 @@ namespace nRFTP {
       IPhysicalLayer* physicalLayer;
       IMessageHandler* messageHandler;
 
-      uint8_t readBuffer[Message::SIZE];
-      uint16_t readedType;
-      bool readedIsResponse;
+      uint16_t activity_counter;
 
-      nRFTP::RoutingTable routing;
+      uint8_t readBuffer[Message::SIZE];
+
+      nRFTP::MessageBuffer messageBuffer;
 
       unsigned long waitingForPingResponse;
       uint16_t currentlyPingingAddress;

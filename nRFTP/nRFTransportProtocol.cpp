@@ -5,9 +5,15 @@
 #include "Util/ByteBuffer.h"
 #include "IPhysicalLayer.h"
 #include "IMessageHandler.h"
+#include <Message/MessageBuffer.h>
 
 
 #define DEBUG_TL 1
+
+#if DEBUG_TL == 1
+#else
+#define RFLOGLN(x)
+#endif
 
 namespace nRFTP {
 
@@ -21,8 +27,6 @@ namespace nRFTP {
       : address(_address),
         physicalLayer(_physicalLayer),
         messageHandler(0),
-        readedType(0),
-        readedIsResponse(false),
         waitingForPingResponse(0),
         currentlyPingingAddress(0){
 #ifndef ARDUINO
@@ -48,10 +52,7 @@ namespace nRFTP {
 
 		  waitingForPingResponse = RFMILLIS();
 		  currentlyPingingAddress = destAddress;
-#if(DEBUG_TL)
-	RFLOGLN("Ping request sent!");
-	pingMessage.header.printHeader();
-#endif
+		  RFLOGLN("Ping request sent!");
 		  sendMessage(bb, destAddress);
       }
 
@@ -72,27 +73,29 @@ namespace nRFTP {
 
 
       bool nRFTransportProtocol::sendMessage(ByteBuffer& bb, uint16_t destAddress){
-    	  if(routing.isElement(destAddress)) {
-    		  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(routing.getNextHopAddress(destAddress)));
-    	  }
-    	  else {
-    		  if(destAddress == broadcastAddress) {
-    			 return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(broadcastAddress));
-    		  } else {
-				  RouteMessage routeMessage(bb);
-				  routeMessage.header.srcAddress = address;
-				  routeMessage.header.destAddress = destAddress;
-				  routeMessage.header.setFlag(routeMessage.header.FLAG_IS_RESPONSE, 0);
-				  routeMessage.fromAddress = address;
 
-				  bb.reset();
-				  RFDELAY(20);
-#if(DEBUG_TL)
-	RFLOGLN("New destAddress. Route request sent!");
-	routeMessage.header.printHeader();
-#endif
-				  return physicalLayer->write((const void*)bb.data, Message::SIZE, Util::TPAddress_to_nRF24L01Address(broadcastAddress));
-    		  }
+    	  activity_counter++;
+
+    	  if(routing.isElement(destAddress)) {
+    		  routing.resetActivity(destAddress);
+    		  return physicalLayer->write((const void*)bb.data, Message::SIZE, routing.getNextHopAddress(destAddress));
+    	  } else if(destAddress == broadcastAddress){
+    		  return physicalLayer->write((const void*)bb.data, Message::SIZE, broadcastAddress);
+    	  } else {
+		      RouteMessage routeMessage(address, broadcastAddress);
+			  routeMessage.header.setFlag(routeMessage.header.FLAG_IS_RESPONSE, 0);
+			  routeMessage.fromAddress = address;
+			  routeMessage.targetAddress = destAddress;
+
+			  bb.reset();
+			  routeMessage.copyToByteBuffer(bb);
+
+			  if(!messageBuffer.isElement(routeMessage.header.messageId, routeMessage.header.srcAddress)) {
+				  messageBuffer.newElement(routeMessage.header.flagsAndType, routeMessage.header.messageId, routeMessage.header.srcAddress, routeMessage.header.destAddress);
+			  }
+
+			  RFLOGLN("New destAddress. Route request sent!");
+			  return physicalLayer->write((const void*)bb.data, Message::SIZE, routeMessage.header.destAddress);
     	  }
       }
 
@@ -106,6 +109,13 @@ namespace nRFTP {
       }
 
       void nRFTransportProtocol::run(void){
+
+    	if(activity_counter >= 2)
+    	{
+    		routing.decreaseActivity();
+    		activity_counter = 0;
+    	}
+
         if (waitingForPingResponse > 0){
         	checkForPingTimeOut();
         }
@@ -113,9 +123,13 @@ namespace nRFTP {
         if (available()){
           ByteBuffer bb(readBuffer);
           read(bb);
-          readedType = Message::getTypeFromReadBuffer(readBuffer);
-          readedIsResponse = Message::isResponseFromReadBuffer(readBuffer);
-          handleMessage(bb,readedType, readedIsResponse);
+          Header header(bb);
+		  bb.reset();
+          if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
+			  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
+          } else {
+        	  sendMessage(bb, header.destAddress);
+          }
         }
       }
 
@@ -123,96 +137,88 @@ namespace nRFTP {
     	    bool forwardToApp = true;
             switch (type){
             	case Message::TYPE_PING:
-            	  if (waitingForPingResponse != 0 && isResponse){
-                    messageHandler->pingResponseArrived((uint16_t)((uint16_t)RFMILLIS() - (uint16_t)waitingForPingResponse), currentlyPingingAddress );
-
-                    waitingForPingResponse = 0;
-                    currentlyPingingAddress = 0;
-                    doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
-            	  }
-
-				  if (!isResponse){
+            	{
 					PingMessage pingMessage(bb);
-					uint16_t tmp = pingMessage.header.srcAddress;
-					pingMessage.header.srcAddress = pingMessage.header.destAddress;
-					pingMessage.header.destAddress = tmp;
+					  if (waitingForPingResponse != 0 && isResponse){
+						messageHandler->pingResponseArrived((uint16_t)((uint16_t)RFMILLIS() - (uint16_t)waitingForPingResponse), currentlyPingingAddress );
 
-					pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
+						waitingForPingResponse = 0;
+						currentlyPingingAddress = 0;
+						doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
+					  }
 
-					// bytebuffer reset a copy el�tt azt�n k�ld�s
-					bb.reset();
-					pingMessage.copyToByteBuffer(bb);
-#if(DEBUG_TL)
-	RFLOGLN("Ping response sent!");
-	pingMessage.header.printHeader();
-#endif
+					if (!isResponse){
+					  uint16_t tmp = pingMessage.header.srcAddress;
+					  pingMessage.header.srcAddress = pingMessage.header.destAddress;
+					  pingMessage.header.destAddress = tmp;
 
-					RFDELAY(20);
-					sendMessage(bb, pingMessage.header.destAddress);
-				  }
+					  pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
+
+
+					  bb.reset();
+					  pingMessage.copyToByteBuffer(bb);
+					  RFLOGLN("Ping response sent!");
+					  RFDELAY(20);
+					  sendMessage(bb, pingMessage.header.destAddress);
+					}
 				break;
-
+            	}
                 case Message::TYPE_ROUTE:
                 {
                 	RouteMessage routeMessage(bb);
                 	if(!isResponse){ 		//Request
-                		if(routeMessage.header.destAddress == address){		//Mi voltunk a c�mzettek, response �zenetet k�ld�nk visszafel�.
+                		if(routeMessage.targetAddress == address){
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
-                				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+                				RFLOGLN("New element in the routing table!");
                 			}
                 			uint16_t tmp = routeMessage.header.srcAddress;
-                			routeMessage.header.srcAddress = routeMessage.header.destAddress;
+                			routeMessage.header.srcAddress = address;
                 			routeMessage.header.destAddress = tmp;
                 			routeMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
                 			routeMessage.fromAddress = address;
 
                 			bb.reset();
                 			routeMessage.copyToByteBuffer(bb);
-                			RFDELAY(20);
                 			sendMessage(bb, routeMessage.header.destAddress);
-#if(DEBUG_TL)
-    RFLOGLN("Request arrived. Route response sent!");
-	routeMessage.header.printHeader();
-#endif
+                			RFLOGLN("Route request arrived. Route response sent!");
+
                 		}
-                		else{													//Request, broadcast csatorn�n tov�bbk�ldj�k.
+                		else{
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
-                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+                			    RFLOGLN("New element in the routing table!");
                 			}
-                			routeMessage.fromAddress = address;
-                			bb.reset();
-                			routeMessage.copyToByteBuffer(bb);
-                			RFDELAY(20);
-                			sendMessage(bb, broadcastAddress);
-#if(DEBUG_TL)
-    RFLOGLN("Route request sent broadcast!");
-	routeMessage.header.printHeader();
-#endif
+                    		if(!messageBuffer.isElement(routeMessage.header.messageId, routeMessage.header.srcAddress)) {
+                    			messageBuffer.newElement(routeMessage.header.flagsAndType, routeMessage.header.messageId, routeMessage.header.srcAddress, routeMessage.header.destAddress);
+
+								routeMessage.fromAddress = address;
+								bb.reset();
+								routeMessage.copyToByteBuffer(bb);
+								sendMessage(bb, broadcastAddress);
+								RFLOGLN("Route request sent broadcast!");
+                    		}
                 		}
 
                 	}
                 	else {		//Response
-                		if(routeMessage.header.destAddress == address){		//Response j�tt, mi voltunk a c�l, fel�p�lt az �tvonal.
+                		if(routeMessage.header.destAddress == address){
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
-                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+                			    RFLOGLN("New element in the routing table!");
                 			}
-#if(DEBUG_TL)
                 			RFLOGLN("Route complete!");
-#endif
                 		}
-                		else {														//Response, tov�bb k�ldj�k a c�l fel�.
+                		else {
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
-                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 0, 0);
+                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+                			    RFLOGLN("New element in the routing table!");
                 			}
                 			routeMessage.fromAddress = address;
                 			bb.reset();
                 			routeMessage.copyToByteBuffer(bb);
-                			RFDELAY(20);
                 			sendMessage(bb, routeMessage.header.destAddress);
-#if(DEBUG_TL)
-    RFLOGLN("Route response sent!");
-	routeMessage.header.printHeader();
-#endif
+                			RFLOGLN("Route response sent!");
                 		}
                 	}
                 }
