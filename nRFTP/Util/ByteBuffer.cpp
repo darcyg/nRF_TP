@@ -25,6 +25,15 @@ namespace nRFTP {
     data[pos++] = val & 0xff;
   }
 
+  void ByteBuffer::putFloat(const float& val){
+	  const uint8_t* p = reinterpret_cast<const uint8_t*>(&val);
+
+	  for (int i = 0; i != sizeof(float); ++i)
+	  {
+		  data[pos++] = p[i];
+	  }
+  }
+
   uint8_t ByteBuffer::getByte(void) {
     return data[pos++];
   }
@@ -39,6 +48,15 @@ namespace nRFTP {
     tmp = tmp | (uint32_t)data[pos++] << 16;
     tmp = tmp | (uint32_t)data[pos++] << 8;
     return tmp | (uint32_t)data[pos++];
+  }
+
+  float ByteBuffer::getFloat(void){
+	  char tmp[sizeof(float)];
+	  for (int i = 0; i != sizeof(float); ++i)
+	  {
+		  tmp[i] = data[pos++];
+		  return *reinterpret_cast<float*>(&tmp);
+	  }
   }
 
 }
