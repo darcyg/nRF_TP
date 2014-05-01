@@ -55,8 +55,8 @@ namespace nRFTP {
 	  for (int i = 0; i != sizeof(float); ++i)
 	  {
 		  tmp[i] = data[pos++];
-		  return *reinterpret_cast<float*>(&tmp);
 	  }
+	  return *reinterpret_cast<float*>(&tmp);
   }
 
 }
