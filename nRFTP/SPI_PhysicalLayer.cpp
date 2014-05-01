@@ -14,8 +14,30 @@ namespace nRFTP{
 
   void SPI_PhysicalLayer::begin(void){
 
-	  for (int i=0; i<15; i++){
-		  test_data[i] = SensorData(SensorData::TYPE_LIGHT, 10*i, 0, 0);
+	  for (int i=0; i<3; i++){
+		  test_data[i] = SensorData(SensorData::TYPE_LIGHT, 10*i, 965, 0);
+	  }
+	  for (int i=3; i<5; i++){
+		  test_data[i] = SensorData(SensorData::TYPE_LIGHT, 10*i, 1023, 0);
+	  }
+	  for (int i=5; i<10; i++){
+		  test_data[i] = SensorData(SensorData::TYPE_LIGHT, 10*i, 2250, 0);
+	  }
+	  for (int i=10; i<15; i++){
+		  test_data[i] = SensorData(SensorData::TYPE_LIGHT, 10*i, 1234, 0);
+	  }
+
+	  for (int i=15; i<20; i++){
+		  test_data[i] = SensorData(SensorData::TYPE_TEMPERATURE, 10*i, 965, 0);
+	  }
+	  for (int i=20; i<23; i++){
+		  test_data[i] = SensorData(SensorData::TYPE_BATTERY, 10*i, 1023, 0);
+	  }
+	  for (int i=23; i<28; i++){
+		  test_data[i] = SensorData(SensorData::TYPE_BATTERY, 10*i, 2250, 0);
+	  }
+	  for (int i=28; i<35; i++){
+		  test_data[i] = SensorData(SensorData::TYPE_CURRENT, 10*i, 1234, 0);
 	  }
   }
 
@@ -25,7 +47,7 @@ namespace nRFTP{
   }
 
   bool SPI_PhysicalLayer::available(void){
-	  if (this->test_readed_messages < 15){
+	  if (this->test_readed_messages < 35 && testing){
 		  test_available_counter++;
 	  	  if (test_available_counter %10 == 0){
 	  		  return true;

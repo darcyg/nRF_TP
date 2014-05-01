@@ -20,9 +20,11 @@ namespace nRFTP{
       bool read( void* buf, uint8_t len );
       void begin(void);
 
+      static const bool testing = false;
+
       int test_readed_messages;
       int test_available_counter;
-      SensorData test_data[15];
+      SensorData test_data[35];
       uint8_t test_buffer[Message::SIZE];
 
     protected:
