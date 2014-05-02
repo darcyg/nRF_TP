@@ -21,6 +21,7 @@ namespace nRFTP {
       static const uint8_t TYPE_DISCOVERY = 5;
       static const uint8_t TYPE_COMMAND = 6;
       static const uint8_t TYPE_ERROR = 7;
+      static const uint8_t TYPE_ADDRESS = 8;
 
       static const uint8_t SIZE = 24;
 

@@ -121,15 +121,28 @@ namespace nRFTP {
         }
 
         if (available()){
-          ByteBuffer bb(readBuffer);
-          read(bb);
-          Header header(bb);
-		  bb.reset();
-          if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
-			  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
-          } else {
-        	  sendMessage(bb, header.destAddress);
-          }
+        	ByteBuffer bb(readBuffer);
+        	read(bb);
+        	Header header(bb);
+        	bb.reset();
+        	if(address == UNDEFINED_ADDRESS && header.destAddress == broadcastAddress // do not have an address yet, waiting for a broadcast message
+        			&& header.getFlag(Header::FLAG_IS_RESPONSE) // which is a reply
+        			&& header.getType() == Message::TYPE_ADDRESS){ // to our dynamic address request
+        		AddressMessage addressMessage(bb);	// then the content of the message received, will be the new address
+        		address = addressMessage.address; // the reply should contain the new address
+        	} else if (address == GATEWAY_ADDRESS  // if this node is the gateway
+        			&& header.getFlag(Header::FLAG_IS_RESPONSE) == false // and we received a request
+        			&& header.destAddress == GATEWAY_ADDRESS // and the message is sent to the gateway
+        			&& header.getType() == Message::TYPE_ADDRESS){ // and the type is address
+        		//TODO: the new generated address should be put into the payload of the message
+        	} else if (address != 0 && // only if we have a valid address
+        			(header.destAddress == address
+        					|| header.destAddress == broadcastAddress
+        					|| header.getType() == Message::TYPE_ROUTE)){
+        		handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
+        	} else if (address != 0){ // only if we have a valid address
+        		sendMessage(bb, header.destAddress);
+        	}
         }
       }
 

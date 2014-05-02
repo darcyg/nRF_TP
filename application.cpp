@@ -18,6 +18,8 @@
 using namespace nRFTP;
 
 const uint16_t SELF_ADDRESS = 33;
+const uint16_t GATEWAY_ADDRESS = 99;
+const uint16_t UNDEFINED_ADDRESS = 0;
 
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
