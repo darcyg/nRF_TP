@@ -50,7 +50,7 @@ class SensorNetworkMessageHandler : public IMessageHandler {
 						case SensorData::TYPE_BATTERY:
 						{
 							digitalWrite(BATT_MEASURE_EN, HIGH);
-							sensorData.sensorData = analogRead(BATTERY_PIN); 			// Const = 13.3 / 3.3 = 0.01299;
+							sensorData.sensorData = analogRead(BATTERY_PIN) * 0.01299; 			// Const = 13.3 / 3.3 = 0.01299;
 							digitalWrite(BATT_MEASURE_EN, LOW);
 							break;
 						}
@@ -63,7 +63,7 @@ class SensorNetworkMessageHandler : public IMessageHandler {
 
 						case SensorData::TYPE_CURRENT:
 						{
-							sensorData.sensorData = analogRead(CURRENT_PIN);			//Const = (3.3 * 1000) / (1024*1.6*51) = 0.03949
+							sensorData.sensorData = analogRead(CURRENT_PIN) * 0.03949;			//Const = (3.3 * 1000) / (1024*1.6*51) = 0.03949
 							break;
 						}
 

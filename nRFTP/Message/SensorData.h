@@ -23,7 +23,7 @@ namespace nRFTP{
 			static const uint8_t TYPE_CURRENT = 3;
 
 			uint8_t sensorType;
-			uint32_t sensorData;
+			float sensorData;
 
 			SensorData();
 			SensorData(ByteBuffer& src);

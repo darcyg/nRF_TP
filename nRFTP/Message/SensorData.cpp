@@ -12,7 +12,7 @@ namespace nRFTP{
 	SensorData::SensorData(ByteBuffer& src)
 		: Message(src){
 			sensorType = src.getByte();
-			sensorData = src.getUint32_t();
+			sensorData = src.getFloat();
 		}
 
 	SensorData::SensorData(uint8_t _sensorType, uint32_t _sensorData, uint16_t _srcAddress, uint16_t _destAddress)
@@ -24,7 +24,7 @@ namespace nRFTP{
 	void SensorData::copyToByteBuffer(ByteBuffer& dest){
 		  Message::copyToByteBuffer(dest);
 		  dest.putByte(sensorType);
-		  dest.putUint32_t(sensorData);
+		  dest.putFloat(sensorData);
 		}
 
 }
