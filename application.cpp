@@ -8,6 +8,7 @@
 #include "Util/ByteBuffer.h"
 #include "Sensor/OneWire.h"
 #include "Sensor/DallasTemperature.h"
+#include <Message/MessageBuffer.h>
 
 #define LIGHT_PIN A5
 #define BATTERY_PIN A4
@@ -17,9 +18,17 @@
 
 using namespace nRFTP;
 
-const uint16_t SELF_ADDRESS = 33;
+const uint16_t SELF_ADDRESS = 44;
 const uint16_t GATEWAY_ADDRESS = 99;
 const uint16_t UNDEFINED_ADDRESS = 0;
+
+
+bool doPing = false;
+uint16_t counter = 0;
+uint16_t lostpacket = 0;
+uint16_t totalPacket = 500;
+
+char addr[5];
 
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
@@ -99,7 +108,22 @@ class SensorNetworkMessageHandler : public IMessageHandler {
     }
 
     void pingResponseArrived(uint16_t milis, uint16_t destAddress){
-        Serial.print("Pinged "); Serial.print(destAddress); Serial.print(": "); Serial.print(milis); Serial.println(" ms");
+    	if(milis == 9999) {
+    		lostpacket++;
+    	}
+        //Serial.print("Pinged "); Serial.print(destAddress); Serial.print(": "); Serial.print(milis); Serial.println(" ms");
+    	RFLOGLN(milis);
+
+        doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
+
+        if(counter >= totalPacket) {
+          RFLOG("Pinged: "); RFLOGLN(destAddress);
+      	  RFLOG("Total packets: "); RFLOGLN(counter);
+      	  RFLOG("Lost packets: "); RFLOGLN(lostpacket);
+      	  counter = 0;
+      	  doPing = false;
+      	  lostpacket = 0;
+        }
     }
 
 }sensorNetworkMessageHandler;
@@ -127,13 +151,19 @@ void loop() {
   {
 	int i = 0;
 	delay(3);
-	char addr[5];
     Serial.readBytes(addr, 5);
     if (addr[0] == 'r' && addr[1] == 't') {			//routing table
     	transportProtocol.routing.printRoutingTable();
-    } else if (addr[0] == 'n' && addr[1] == 't'){	//neighborhood table
-    	transportProtocol.neighborhood.printNeighborhoodTable();
-    } else
-    	transportProtocol.ping((uint16_t)atoi(addr));
+    } else if (addr[0] == 'm' && addr[1] == 'b'){	//messagebuffer
+    	transportProtocol.messageBuffer.printMessageBuffer();
+    } else {
+    	doPing = true;
     }
+    }
+  if(doPing && (counter < totalPacket)){
+      	doPing = false;
+      	transportProtocol.ping((uint16_t)atoi(addr));
+      	counter ++;
+  }
+
 }

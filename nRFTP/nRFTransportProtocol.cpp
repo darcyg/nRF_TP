@@ -17,8 +17,6 @@
 
 namespace nRFTP {
 
-      bool nRFTransportProtocol::doPing;
-
 #ifndef ARDUINO
       uint64_t nRFTransportProtocol::startTime;
 #endif
@@ -52,7 +50,6 @@ namespace nRFTP {
 
 		  waitingForPingResponse = RFMILLIS();
 		  currentlyPingingAddress = destAddress;
-		  RFLOGLN("Ping request sent!");
 		  sendMessage(bb, destAddress);
       }
 
@@ -121,6 +118,19 @@ namespace nRFTP {
         }
 
         if (available()){
+
+        	ByteBuffer bb(readBuffer);
+			   read(bb);
+			   Header header(bb);
+			  bb.reset();
+			  if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
+			  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
+			   } else {
+				  sendMessage(bb, header.destAddress);
+			   }
+
+        }
+        	/*
         	ByteBuffer bb(readBuffer);
         	read(bb);
         	Header header(bb);
@@ -143,7 +153,7 @@ namespace nRFTP {
         	} else if (address != 0){ // only if we have a valid address
         		sendMessage(bb, header.destAddress);
         	}
-        }
+        }*/
       }
 
       void nRFTransportProtocol::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
@@ -157,7 +167,7 @@ namespace nRFTP {
 
 						waitingForPingResponse = 0;
 						currentlyPingingAddress = 0;
-						doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
+
 					  }
 
 					if (!isResponse){
@@ -171,7 +181,7 @@ namespace nRFTP {
 					  bb.reset();
 					  pingMessage.copyToByteBuffer(bb);
 					  RFLOGLN("Ping response sent!");
-					  RFDELAY(20);
+					  RFDELAY(6);
 					  sendMessage(bb, pingMessage.header.destAddress);
 					}
 				break;
@@ -254,7 +264,6 @@ namespace nRFTP {
             messageHandler->pingResponseArrived(PingMessage::TIMEOUT_VAL, currentlyPingingAddress );
             waitingForPingResponse = 0;
             currentlyPingingAddress = 0;
-            doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
           }
       }
 }

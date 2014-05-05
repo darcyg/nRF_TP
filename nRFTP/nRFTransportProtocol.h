@@ -35,7 +35,7 @@ namespace nRFTP {
 
       void run(void);
 
-      static bool doPing;
+      nRFTP::MessageBuffer messageBuffer;
 
 #ifndef ARDUINO
       static uint64_t startTime;
@@ -49,8 +49,6 @@ namespace nRFTP {
       uint16_t activity_counter;
 
       uint8_t readBuffer[Message::SIZE];
-
-      nRFTP::MessageBuffer messageBuffer;
 
       unsigned long waitingForPingResponse;
       uint16_t currentlyPingingAddress;

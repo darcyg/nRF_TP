@@ -13,10 +13,11 @@ namespace nRFTP{
   nRF24L01_PhysicalLayer::nRF24L01_PhysicalLayer(uint64_t _selfAddress, uint8_t _cepin, uint8_t _cspin) : radio(_cepin, _cspin), selfAddress(_selfAddress) {
 
   }
-
   void nRF24L01_PhysicalLayer::begin(void){
     radio.begin();
     radio.setRetries(15,15);
+    radio.setDataRate(RF24_2MBPS);
+    radio.setPALevel(RF24_PA_HIGH);
     radio.setPayloadSize(Message::SIZE);
     radio.openReadingPipe(0,selfAddress);
     radio.openReadingPipe(1,Util::TPAddress_to_nRF24L01Address(nRFTransportProtocol::broadcastAddress));

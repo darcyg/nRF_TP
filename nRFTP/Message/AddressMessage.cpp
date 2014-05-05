@@ -10,7 +10,7 @@
 
 namespace nRFTP {
 
-	AddressMessage::AddressMessage() : Message(0, GATEWAY_ADDRESS, Message::TYPE_ADDRESS) {
+	/*AddressMessage::AddressMessage() : Message(0, GATEWAY_ADDRESS, Message::TYPE_ADDRESS) {
 	}
 
 	AddressMessage::AddressMessage(ByteBuffer& src) : Message(src){
@@ -20,6 +20,6 @@ namespace nRFTP {
 	void AddressMessage::copyToByteBuffer(ByteBuffer& dest){
 		Message::copyToByteBuffer(dest);
 		dest.putWord(address);
-	}
+	}*/
 
 } /* namespace nRFTP */

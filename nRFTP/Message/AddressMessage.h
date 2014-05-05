@@ -10,7 +10,7 @@
 
 #include "Message/Message.h"
 
-namespace nRFTP {
+namespace nRFTP { /*
 
 	class ByteBuffer;
 
@@ -23,7 +23,7 @@ namespace nRFTP {
 
 		protected:
 		uint16_t address;
-	};
+	};*/
 
 } /* namespace nRFTP */
 

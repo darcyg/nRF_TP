@@ -22,6 +22,7 @@ namespace nRFTP {
 			void deleteElement(uint16_t messageId);
 			bool isElement (uint16_t messageId, uint16_t srcAddress);
 			uint8_t getIndexById(uint16_t messageId);
+			void printMessageBuffer();
 
 			MessageBufferElement elements[size];
 	};
