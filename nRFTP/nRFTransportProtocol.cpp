@@ -6,6 +6,7 @@
 #include "IPhysicalLayer.h"
 #include "IMessageHandler.h"
 #include <Message/MessageBuffer.h>
+#include "Message/RoutingTableElementMessage.h"
 
 
 #define DEBUG_TL 1
@@ -249,6 +250,25 @@ namespace nRFTP {
 
                 case Message::TYPE_SENSORDATA:
                   break;
+
+                case Message::TYPE_ROUTING_TABLE:
+                	if (!isResponse){
+                		RoutingTableElementMessage rtem(bb);
+                		rtem.header.setFlag(Header::FLAG_IS_RESPONSE, true);
+                		uint16_t tmp = rtem.header.srcAddress;
+                		rtem.header.srcAddress = address;
+                		rtem.header.destAddress = tmp;
+
+                		for (int i =0; i<routing.elementNum; i++){
+                			rtem.moreElements = routing.elementNum-1-i;
+                			rtem.setRoutingTableElement(routing.elements[i]);
+                			bb.reset();
+                			rtem.copyToByteBuffer(bb);
+                			sendMessage(bb, rtem.header.destAddress);
+                			RFDELAY(15);
+                		}
+                	}
+                	break;
 
                 default:
                   break;

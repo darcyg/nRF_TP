@@ -8,6 +8,7 @@
 // Modified by Jordan Hochenbaum
 
 #include "DallasTemperature.h"
+#include "OneWire.h"
 
 #if ARDUINO >= 100
     #include "Arduino.h"   

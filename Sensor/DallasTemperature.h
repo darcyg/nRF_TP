@@ -57,6 +57,8 @@
 
 typedef uint8_t DeviceAddress[8];
 
+class OneWire;
+
 class DallasTemperature
 {
   public:

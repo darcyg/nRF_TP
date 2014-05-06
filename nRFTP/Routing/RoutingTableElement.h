@@ -26,7 +26,10 @@ namespace nRFTP {
 			uint8_t lastActivity;
 			uint8_t reserved;  // not assigned to anything yet, available for use if needed
 
+			void copyToByteBuffer(ByteBuffer& dest);
+
 			RoutingTableElement();
+			RoutingTableElement(ByteBuffer& src);
 			virtual ~RoutingTableElement();
 	};
 

@@ -6,6 +6,7 @@
  */
 
 #include <Routing/RoutingTableElement.h>
+#include "Util/ByteBuffer.h"
 
 namespace nRFTP {
 
@@ -19,6 +20,25 @@ RoutingTableElement::RoutingTableElement():
 		{
 	// TODO Auto-generated constructor stub
 
+}
+
+RoutingTableElement::RoutingTableElement(ByteBuffer& dest):
+							 destinationAddress(dest.getWord()),
+							 nextHop(dest.getWord()),
+							 rtt(dest.getWord()),
+							 ttl(dest.getByte()),
+							 lastActivity(dest.getByte()),
+							 reserved(dest.getByte())
+	{
+	}
+
+void RoutingTableElement::copyToByteBuffer(ByteBuffer& dest){
+	dest.putWord(destinationAddress);
+	dest.putWord(nextHop);
+	dest.putWord(rtt);
+	dest.putByte(ttl);
+	dest.putByte(lastActivity);
+	dest.putByte(reserved);
 }
 
 RoutingTableElement::~RoutingTableElement() {
