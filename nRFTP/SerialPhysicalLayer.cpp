@@ -8,7 +8,6 @@
 #ifndef ARDUINO
 
 #include <SerialPhysicalLayer.h>
-#include <cstdio>
 #include <cstring>
 #include <Util/Util.h>
 

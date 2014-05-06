@@ -9,6 +9,7 @@
 #define ROUTINGTABLEELEMENTMESSAGE_H_
 
 #include "Routing/RoutingTableElement.h"
+#include "Message/Message.h"
 
 namespace nRFTP {
 

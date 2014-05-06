@@ -15,6 +15,7 @@
 #endif
 
 namespace nRFTP {
+	class ByteBuffer;
 
 	class RoutingTableElement
 	{

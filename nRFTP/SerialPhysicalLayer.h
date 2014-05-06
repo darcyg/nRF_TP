@@ -11,6 +11,7 @@
 
 #include "IPhysicalLayer.h"
 #include "Message/Message.h"
+#include <cstdio>
 
 namespace nRFTP {
 

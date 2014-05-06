@@ -16,11 +16,18 @@
 #define CURRENT_PIN A3
 #define ONE_WIRE_BUS 2
 
+#define GATEWAY_NODE 0
+
 using namespace nRFTP;
 
-const uint16_t SELF_ADDRESS = 44;
-const uint16_t GATEWAY_ADDRESS = 99;
-const uint16_t UNDEFINED_ADDRESS = 0;
+#if GATEWAY_NODE==1
+	const uint16_t SELF_ADDRESS = 44;
+#else
+	const uint16_t SELF_ADDRESS = 0;
+#endif
+
+const uint16_t GATEWAY_ADDRESS = 0;
+const uint16_t UNDEFINED_ADDRESS = 65000;
 
 
 bool doPing = false;
@@ -30,6 +37,10 @@ uint16_t totalPacket = 500;
 
 char addr[5];
 
+#if GATEWAY_NODE==1
+	char readBuffer[Message::size];
+#else
+
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
 
@@ -38,6 +49,9 @@ DallasTemperature sensors(&oneWire);
 
 class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
+#if GATEWAY_NODE == 1
+    	Serial.write(bb.data, Message::size);
+#endif
       switch (type){
           case nRFTP::Message::TYPE_PING:
             break;
@@ -129,7 +143,12 @@ class SensorNetworkMessageHandler : public IMessageHandler {
 }sensorNetworkMessageHandler;
 
 void setup() {
+#if GATEWAY_NODE == 1
+	Serial.begin(115200);
+	Serial.setTimeout(20);
+#else
   Serial.begin(57600);
+#endif
   transportProtocol.begin(&sensorNetworkMessageHandler);
 
   Serial.println(sizeof(Header));
@@ -147,23 +166,32 @@ void setup() {
 void loop() {
   transportProtocol.run();
 
+#if GATEWAY_NODE == 1
   if ( Serial.available() )
   {
-	int i = 0;
-	delay(3);
-    Serial.readBytes(addr, 5);
-    if (addr[0] == 'r' && addr[1] == 't') {			//routing table
-    	transportProtocol.routing.printRoutingTable();
-    } else if (addr[0] == 'm' && addr[1] == 'b'){	//messagebuffer
-    	transportProtocol.messageBuffer.printMessageBuffer();
-    } else {
-    	doPing = true;
-    }
-    }
-  if(doPing && (counter < totalPacket)){
-      	doPing = false;
-      	transportProtocol.ping((uint16_t)atoi(addr));
-      	counter ++;
+	  Serial.readBytes(readBuffer, Message::size);
   }
+#else
+    	  if ( Serial.available() )
+    	  {
+    		int i = 0;
+    		delay(3);
+    	    Serial.readBytes(addr, 5);
+    	    if (addr[0] == 'r' && addr[1] == 't') {			//routing table
+    	    	transportProtocol.routing.printRoutingTable();
+    	    } else if (addr[0] == 'm' && addr[1] == 'b'){	//messagebuffer
+    	    	transportProtocol.messageBuffer.printMessageBuffer();
+    	    } else {
+    	    	doPing = true;
+    	    }
+    	    }
+    	  if(doPing && (counter < totalPacket)){
+    	      	doPing = false;
+    	      	transportProtocol.ping((uint16_t)atoi(addr));
+    	      	counter ++;
+    	  }
+#endif
+
+
 
 }
