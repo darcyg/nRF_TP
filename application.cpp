@@ -39,7 +39,7 @@ char addr[5];
 
 #if GATEWAY_NODE==1
 	char readBuffer[Message::size];
-#else
+#endif
 
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
