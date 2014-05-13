@@ -11,6 +11,7 @@
 
 #include "IPhysicalLayer.h"
 #include "Message/Message.h"
+#include <sys/select.h>
 #include <cstdio>
 
 namespace nRFTP {
@@ -26,9 +27,12 @@ public:
     void begin(void);
 
 protected:
-    FILE *file;
+    int fd;
     uint8_t buffer[Message::SIZE];
     char serialDevice[15];
+
+    struct timeval timeout;
+    fd_set set;
 };
 
 } /* namespace nRFTP */
