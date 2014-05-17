@@ -44,13 +44,17 @@ namespace nRFTP {
 
 
       void nRFTransportProtocol::ping(uint16_t destAddress){
+    	  RFLOG( "nRFTransportProtocol::ping/"); RFLOG( __LINE__); RFLOG(": begin dest: "); RFLOGLN(destAddress);
 		  PingMessage pingMessage(address, destAddress);
 		  uint8_t sendBuffer[Message::SIZE];
 		  ByteBuffer bb(sendBuffer);
 		  pingMessage.copyToByteBuffer(bb);
+		  bb.reset();
 
 		  waitingForPingResponse = RFMILLIS();
 		  currentlyPingingAddress = destAddress;
+		  RFLOG( "nRFTransportProtocol::ping/"); RFLOG( __LINE__); RFLOGLN(": s7");
+		  RFLOG( "nRFTransportProtocol::ping/"); RFLOG( __LINE__); RFLOG(": end dest: "); RFLOGLN(destAddress);
 		  sendMessage(bb, destAddress);
       }
 
@@ -75,15 +79,26 @@ namespace nRFTP {
     	  activity_counter++;
 
     	  if(routing.isElement(destAddress)) {
+    		  RFLOG( "nRFTransportProtocol::sendMessage/"); RFLOG( __LINE__); RFLOGLN(": send 0");
     		  routing.resetActivity(destAddress);
     		  return physicalLayer->write((const void*)bb.data, Message::SIZE, routing.getNextHopAddress(destAddress));
+    		  RFLOG( "nRFTransportProtocol::sendMessage/"); RFLOG( __LINE__); RFLOGLN(": send 1");
     	  } else if(destAddress == broadcastAddress){
     		  return physicalLayer->write((const void*)bb.data, Message::SIZE, broadcastAddress);
     	  } else {
+    		  RFLOG( "nRFTransportProtocol::sendMessage/"); RFLOG( __LINE__); RFLOGLN(": send 2");
+    		  Header header(bb);
 		      RouteMessage routeMessage(address, broadcastAddress);
 			  routeMessage.header.setFlag(routeMessage.header.FLAG_IS_RESPONSE, 0);
 			  routeMessage.fromAddress = address;
 			  routeMessage.targetAddress = destAddress;
+			  routeMessage.header.crc=header.crc;
+
+  			RFLOGLN("Route request: ");
+  			RFLOG("  target: "); RFLOGLN(routeMessage.targetAddress);
+  			RFLOG("  from  : "); RFLOGLN(routeMessage.fromAddress);
+  			RFLOG("  dbg   : "); RFLOGLN(routeMessage.header.crc);
+  			routeMessage.header.printHeader();
 
 			  bb.reset();
 			  routeMessage.copyToByteBuffer(bb);
@@ -127,6 +142,7 @@ namespace nRFTP {
 			  if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
 			  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
 			   } else {
+				   RFLOG( "nRFTransportProtocol::run/"); RFLOG( __LINE__); RFLOGLN(": s1");
 				  sendMessage(bb, header.destAddress);
 			   }
 
@@ -157,6 +173,8 @@ namespace nRFTP {
         }*/
       }
 
+      // TODO ttl kezelés
+
       void nRFTransportProtocol::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
     	    bool forwardToApp = true;
             switch (type){
@@ -177,12 +195,14 @@ namespace nRFTP {
 					  pingMessage.header.destAddress = tmp;
 
 					  pingMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
+					  pingMessage.header.crc=2;
 
 
 					  bb.reset();
 					  pingMessage.copyToByteBuffer(bb);
 					  RFLOGLN("Ping response sent!");
 					  RFDELAY(6);
+					  RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": s2");
 					  sendMessage(bb, pingMessage.header.destAddress);
 					}
 				break;
@@ -191,34 +211,45 @@ namespace nRFTP {
                 {
                 	RouteMessage routeMessage(bb);
                 	if(!isResponse){ 		//Request
-                		if(routeMessage.targetAddress == address){
+                		if(routeMessage.targetAddress == address || routing.isElement(routeMessage.targetAddress)){
+                			RFLOGLN("Route request: ");
+                			RFLOG("  target: "); RFLOGLN(routeMessage.targetAddress);
+                			RFLOG("  from  : "); RFLOGLN(routeMessage.fromAddress);
+                			RFLOG("  dbg   : "); RFLOGLN(routeMessage.header.crc);
+                			routeMessage.header.printHeader();
                 			if(!routing.isElement(routeMessage.header.srcAddress)){
                 				routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
                 				RFLOGLN("New element in the routing table!");
                 			}
+
                 			uint16_t tmp = routeMessage.header.srcAddress;
                 			routeMessage.header.srcAddress = address;
                 			routeMessage.header.destAddress = tmp;
                 			routeMessage.header.setFlag(Header::FLAG_IS_RESPONSE, true);
                 			routeMessage.fromAddress = address;
+                			routeMessage.header.crc = 3;
 
                 			bb.reset();
                 			routeMessage.copyToByteBuffer(bb);
+                			RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": s3");
                 			sendMessage(bb, routeMessage.header.destAddress);
                 			RFLOGLN("Route request arrived. Route response sent!");
 
                 		}
                 		else{
-                			if(!routing.isElement(routeMessage.header.srcAddress)){
-                			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
-                			    RFLOGLN("New element in the routing table!");
-                			}
                     		if(!messageBuffer.isElement(routeMessage.header.messageId, routeMessage.header.srcAddress)) {
                     			messageBuffer.newElement(routeMessage.header.flagsAndType, routeMessage.header.messageId, routeMessage.header.srcAddress, routeMessage.header.destAddress);
+
+                    			if(!routing.isElement(routeMessage.header.srcAddress)){
+                    			    routing.newElement(routeMessage.header.srcAddress, routeMessage.fromAddress, 0, 0, 255, 0);
+                    			    RFLOGLN("New element in the routing table!");
+                    			}
 
 								routeMessage.fromAddress = address;
 								bb.reset();
 								routeMessage.copyToByteBuffer(bb);
+								RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": s4");
+								routeMessage.header.crc = 4;
 								sendMessage(bb, broadcastAddress);
 								RFLOGLN("Route request sent broadcast!");
                     		}
@@ -241,6 +272,8 @@ namespace nRFTP {
                 			routeMessage.fromAddress = address;
                 			bb.reset();
                 			routeMessage.copyToByteBuffer(bb);
+                			RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": s5");
+                			routeMessage.header.crc = 5;
                 			sendMessage(bb, routeMessage.header.destAddress);
                 			RFLOGLN("Route response sent!");
                 		}
@@ -264,6 +297,8 @@ namespace nRFTP {
                 			rtem.setRoutingTableElement(routing.elements[i]);
                 			bb.reset();
                 			rtem.copyToByteBuffer(bb);
+                			RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": s6");
+                			rtem.header.crc = 6;
                 			sendMessage(bb, rtem.header.destAddress);
                 			RFDELAY(15);
                 		}

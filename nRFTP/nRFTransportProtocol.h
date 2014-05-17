@@ -27,9 +27,6 @@ namespace nRFTP {
       void sendNeighbourhoodList(uint16_t destAddress);
       bool sendMessage(ByteBuffer& bb, uint16_t destAddress);
 
-      bool available(void);
-      bool read( ByteBuffer& buf );
-
       nRFTP::RoutingTable routing;
       nRFTP::NeighborhoodTable neighborhood;
 
@@ -55,6 +52,8 @@ namespace nRFTP {
 
       void checkForPingTimeOut();
       void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse);
+      bool available(void);
+      bool read( ByteBuffer& buf );
 
   };
 

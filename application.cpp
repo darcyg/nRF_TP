@@ -4,6 +4,7 @@
 #include "SPI.h"
 #include "Message/Message.h"
 #include "Message/SensorData.h"
+#include "Message/Header.h"
 #include <IMessageHandler.h>
 #include "Util/ByteBuffer.h"
 #include "Sensor/OneWire.h"
@@ -16,14 +17,14 @@
 #define CURRENT_PIN A3
 #define ONE_WIRE_BUS 2
 
-#define GATEWAY_NODE 0
+#define GATEWAY_NODE 1
 
 using namespace nRFTP;
 
 #if GATEWAY_NODE==1
-	const uint16_t SELF_ADDRESS = 44;
-#else
 	const uint16_t SELF_ADDRESS = 0;
+#else
+	const uint16_t SELF_ADDRESS = 22;
 #endif
 
 const uint16_t GATEWAY_ADDRESS = 0;
@@ -38,7 +39,7 @@ uint16_t totalPacket = 500;
 char addr[5];
 
 #if GATEWAY_NODE==1
-	char readBuffer[Message::size];
+	char readBuffer[Message::SIZE];
 #endif
 
 nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
@@ -50,7 +51,10 @@ DallasTemperature sensors(&oneWire);
 class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
 #if GATEWAY_NODE == 1
-    	Serial.write(bb.data, Message::size);
+    	digitalWrite(13, HIGH);
+    	//Serial.write(bb.data, Message::SIZE);
+  	    delay(200);
+  	    digitalWrite(13, LOW);
 #endif
       switch (type){
           case nRFTP::Message::TYPE_PING:
@@ -126,18 +130,18 @@ class SensorNetworkMessageHandler : public IMessageHandler {
     		lostpacket++;
     	}
         //Serial.print("Pinged "); Serial.print(destAddress); Serial.print(": "); Serial.print(milis); Serial.println(" ms");
-    	RFLOGLN(milis);
+    	//RFLOGLN(milis);
 
-        doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
-
-        if(counter >= totalPacket) {
-          RFLOG("Pinged: "); RFLOGLN(destAddress);
-      	  RFLOG("Total packets: "); RFLOGLN(counter);
-      	  RFLOG("Lost packets: "); RFLOGLN(lostpacket);
-      	  counter = 0;
-      	  doPing = false;
-      	  lostpacket = 0;
-        }
+//        doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
+//
+//        if(counter >= totalPacket) {
+//          RFLOG("Pinged: "); RFLOGLN(destAddress);
+//      	  RFLOG("Total packets: "); RFLOGLN(counter);
+//      	  RFLOG("Lost packets: "); RFLOGLN(lostpacket);
+//      	  counter = 0;
+//      	  doPing = false;
+//      	  lostpacket = 0;
+//        }
     }
 
 }sensorNetworkMessageHandler;
@@ -146,13 +150,11 @@ void setup() {
 #if GATEWAY_NODE == 1
 	Serial.begin(115200);
 	Serial.setTimeout(20);
+	pinMode(13, OUTPUT);
 #else
   Serial.begin(57600);
 #endif
   transportProtocol.begin(&sensorNetworkMessageHandler);
-
-  Serial.println(sizeof(Header));
-  Serial.println("csumpa");
 
   pinMode(LIGHT_PIN, INPUT);
   pinMode(BATTERY_PIN, INPUT);
@@ -167,13 +169,23 @@ void loop() {
   transportProtocol.run();
 
 #if GATEWAY_NODE == 1
-  if ( Serial.available() )
+  if ( Serial.available() >= Message::SIZE )
   {
-	  Serial.readBytes(readBuffer, Message::size);
+	  Serial.print("available: "); Serial.println(Serial.available());
+	  Serial.readBytes(readBuffer, Message::SIZE);
+	  ByteBuffer bb((uint8_t*)readBuffer);
+	  Header header(bb);
+	  header.crc = 33;
+	  bb.reset();
+	  header.copyToByteBuffer(bb);
+	  bb.reset();
+
+	  transportProtocol.sendMessage(bb, header.destAddress);
   }
 #else
     	  if ( Serial.available() )
     	  {
+    		for (int i=0; i<5; i++) addr[i] = 0;
     		int i = 0;
     		delay(3);
     	    Serial.readBytes(addr, 5);
@@ -182,7 +194,8 @@ void loop() {
     	    } else if (addr[0] == 'm' && addr[1] == 'b'){	//messagebuffer
     	    	transportProtocol.messageBuffer.printMessageBuffer();
     	    } else {
-    	    	doPing = true;
+    	    	transportProtocol.ping((uint16_t)atoi(addr));
+    	    //	doPing = true;
     	    }
     	    }
     	  if(doPing && (counter < totalPacket)){
