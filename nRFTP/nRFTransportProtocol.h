@@ -26,7 +26,7 @@ namespace nRFTP {
       void sendRoutingTable(uint16_t destAddress);
       void sendNeighbourhoodList(uint16_t destAddress);
       bool sendMessage(ByteBuffer& bb, uint16_t destAddress);
-      ByteBuffer& sendMessageSynchronous(ByteBuffer& bb, uint16_t destAddress);
+      ByteBuffer sendMessageSynchronous(ByteBuffer& bb, uint16_t destAddress);
 
       nRFTP::RoutingTable routing;
       nRFTP::NeighborhoodTable neighborhood;

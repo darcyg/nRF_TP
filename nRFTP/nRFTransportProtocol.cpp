@@ -112,7 +112,7 @@ namespace nRFTP {
     	  }
       }
 
-      ByteBuffer& nRFTransportProtocol::sendMessageSynchronous(ByteBuffer& bb, uint16_t destAddress) {
+      ByteBuffer nRFTransportProtocol::sendMessageSynchronous(ByteBuffer& bb, uint16_t destAddress) {
     	uint8_t msgBuff[Message::SIZE];
     	int timeOut = 0;
       	if (routing.isElement(destAddress)) {
