@@ -173,7 +173,7 @@ namespace nRFTP {
         }*/
       }
 
-      // TODO ttl kezelés
+      // TODO ttl kezelï¿½s
 
       void nRFTransportProtocol::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
     	    bool forwardToApp = true;
@@ -310,6 +310,7 @@ namespace nRFTP {
             }
 
             if (forwardToApp){
+              bb.reset();
               messageHandler->handleMessage(bb, type,isResponse);
             }
       }
