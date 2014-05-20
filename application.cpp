@@ -11,12 +11,6 @@
 #include "Sensor/DallasTemperature.h"
 #include <Message/MessageBuffer.h>
 
-#define LIGHT_PIN A5
-#define BATTERY_PIN A4
-#define BATT_MEASURE_EN 6
-#define CURRENT_PIN A3
-#define ONE_WIRE_BUS 2
-
 #define GATEWAY_NODE 1
 
 using namespace nRFTP;
@@ -24,12 +18,24 @@ using namespace nRFTP;
 #if GATEWAY_NODE==1
 	const uint16_t SELF_ADDRESS = 0;
 #else
-	const uint16_t SELF_ADDRESS = 22;
+	const uint16_t SELF_ADDRESS = 11;
 #endif
 
 const uint16_t GATEWAY_ADDRESS = 0;
 const uint16_t UNDEFINED_ADDRESS = 65000;
 
+nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
+
+#if GATEWAY_NODE==1
+	char readBuffer[Message::SIZE];
+	char readAddresBuffer[sizeof(uint16_t)];
+#else
+
+#define LIGHT_PIN A5
+#define BATTERY_PIN A4
+#define BATT_MEASURE_EN 6
+#define CURRENT_PIN A3
+#define ONE_WIRE_BUS 2
 
 bool doPing = false;
 uint16_t counter = 0;
@@ -38,15 +44,11 @@ uint16_t totalPacket = 500;
 
 char addr[5];
 
-#if GATEWAY_NODE==1
-	char readBuffer[Message::SIZE];
-#endif
-
-nRF24L01_PhysicalLayer pLayer(Util::TPAddress_to_nRF24L01Address(SELF_ADDRESS), 9, 10);
 nRFTransportProtocol transportProtocol(&pLayer, SELF_ADDRESS);
 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
+
 
 class SensorNetworkMessageHandler : public IMessageHandler {
     void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
@@ -129,7 +131,7 @@ class SensorNetworkMessageHandler : public IMessageHandler {
     	if(milis == 9999) {
     		lostpacket++;
     	}
-        //Serial.print("Pinged "); Serial.print(destAddress); Serial.print(": "); Serial.print(milis); Serial.println(" ms");
+        RFLOG("Pinged "); Serial.print(destAddress); RFLOG(": "); RFLOGLN(milis);
     	//RFLOGLN(milis);
 
 //        doPing = true; // TODO ping automatikus teszthez kell, torolheto ha mar nem kell
@@ -145,15 +147,18 @@ class SensorNetworkMessageHandler : public IMessageHandler {
     }
 
 }sensorNetworkMessageHandler;
+#endif
+
 
 void setup() {
 #if GATEWAY_NODE == 1
+	pLayer.begin();
 	Serial.begin(115200);
 	Serial.setTimeout(20);
 	pinMode(13, OUTPUT);
 #else
   Serial.begin(57600);
-#endif
+
   transportProtocol.begin(&sensorNetworkMessageHandler);
 
   pinMode(LIGHT_PIN, INPUT);
@@ -162,27 +167,28 @@ void setup() {
   pinMode(BATT_MEASURE_EN, OUTPUT);
 
   sensors.begin();
-
+#endif
 }
 
 void loop() {
-  transportProtocol.run();
+
 
 #if GATEWAY_NODE == 1
-  if ( Serial.available() >= Message::SIZE )
+  if ( Serial.available() >= (sizeof(uint16_t)+ Message::SIZE) )
   {
-	  Serial.print("available: "); Serial.println(Serial.available());
+	  Serial.readBytes(readAddresBuffer, sizeof(uint16_t));
 	  Serial.readBytes(readBuffer, Message::SIZE);
-	  ByteBuffer bb((uint8_t*)readBuffer);
-	  Header header(bb);
-	  header.crc = 33;
-	  bb.reset();
-	  header.copyToByteBuffer(bb);
-	  bb.reset();
+	  uint16_t* pAddr =  reinterpret_cast<uint16_t*>(readAddresBuffer);
 
-	  transportProtocol.sendMessage(bb, header.destAddress);
+	  pLayer.write(readBuffer,Message::SIZE,*pAddr);
+  }
+
+  if (pLayer.available()){
+	  pLayer.read(readBuffer, Message::SIZE);
+	  Serial.write(readBuffer, Message::SIZE);
   }
 #else
+  transportProtocol.run();
     	  if ( Serial.available() )
     	  {
     		for (int i=0; i<5; i++) addr[i] = 0;

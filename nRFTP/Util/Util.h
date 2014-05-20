@@ -26,8 +26,8 @@ namespace nRFTP {
 }
 
 #ifdef ARDUINO
-#define RFLOGLN(x)  //Serial.println(x)
-#define RFLOG(x)  //Serial.print(x)
+#define RFLOGLN(x)  Serial.println(x)
+#define RFLOG(x)  Serial.print(x)
 #define RFDELAY(x) delay(x)
 #define RFMILLIS millis
 #else

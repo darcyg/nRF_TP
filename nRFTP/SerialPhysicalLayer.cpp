@@ -57,6 +57,7 @@ bool Serial_PhysicalLayer::write( const void* buf, uint8_t len, uint16_t destAdd
 //	count = fwrite(buf,1,len,file);
 //	fclose(file);
 //	file = fopen(serialDevice,"r");
+	__write(fd, &destAddress, sizeof(uint16_t) );
 	__write(fd, buf, len );
 	return (count == len);
 }
