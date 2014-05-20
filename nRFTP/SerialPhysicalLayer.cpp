@@ -59,7 +59,7 @@ namespace nRFTP {
 		FD_SET(fd, &input);
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 1;
-		selected = select(fd+1, &input, NULL, NULL, &timeout);
+		int selected = select(fd+1, &input, NULL, NULL, &timeout);
 		return selected > 0;
 	}
 

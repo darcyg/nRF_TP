@@ -32,7 +32,7 @@ protected:
     char serialDevice[15];
 
     struct timeval timeout;
-    fd_set set;
+    fd_set input;
 };
 
 } /* namespace nRFTP */
