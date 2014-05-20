@@ -112,6 +112,71 @@ namespace nRFTP {
     	  }
       }
 
+      ByteBuffer& nRFTransportProtocol::sendMessageSynchronous(ByteBuffer& bb, uint16_t destAddress) {
+    	uint8_t msgBuff[Message::SIZE];
+    	int timeOut = 0;
+      	if (routing.isElement(destAddress)) {
+      		routing.resetActivity(destAddress);
+      		physicalLayer->write((const void*) bb.data, Message::SIZE, routing.getNextHopAddress(destAddress));
+      	} else if (destAddress != broadcastAddress) {
+      		for (int i = 0; i < Message::SIZE; i++) {
+      			msgBuff[i] = bb.data[i];
+      		}
+
+      		RouteMessage routeMessage(address, broadcastAddress);
+      		routeMessage.header.setFlag(routeMessage.header.FLAG_IS_RESPONSE, 0);
+      		routeMessage.fromAddress = address;
+      		routeMessage.targetAddress = destAddress;
+      		routeMessage.copyToByteBuffer(bb);
+
+      		physicalLayer->write((const void*) bb.data, Message::SIZE, routeMessage.header.destAddress);
+      		bool routeDone = false;
+      		while (!routeDone) {
+      			if (timeOut > 1000){
+      				return ByteBuffer(NULL);
+      			}
+      			RFDELAY(5);
+      			if (available()) {
+      				ByteBuffer readbb(readBuffer);
+      				read(readbb);
+      				RouteMessage responseRouteMessage(readbb);
+      				if (responseRouteMessage.header.destAddress == address
+      						&& responseRouteMessage.header.srcAddress == routeMessage.targetAddress
+      						&& responseRouteMessage.header.getType() == Message::TYPE_ROUTE) {
+      					routing.newElement(responseRouteMessage.header.srcAddress, responseRouteMessage.fromAddress, 0, 0, 255, 0);
+      					routeDone = true;
+      				}
+      			}
+      			timeOut+=5;
+      		}
+      		physicalLayer->write((const void*)msgBuff, Message::SIZE, routing.getNextHopAddress(destAddress));
+      	}
+
+      	timeOut = 0;
+      	bb.reset();
+      	Header header(bb);
+      	bool responseArrived = false;
+      	while (!responseArrived){
+  			if (timeOut > 1000){
+  				return ByteBuffer(NULL);
+  			}
+      		RFDELAY(5);
+      		if (available()) {
+      			ByteBuffer readbb(readBuffer);
+      			read(readbb);
+      			Header responseHeader(readbb);
+      			if (responseHeader.destAddress == address
+      					&& responseHeader.srcAddress == header.destAddress
+      					&& responseHeader.getType() == header.getType()) {
+      				responseArrived = true;
+      			}
+      		}
+      		timeOut+=5;
+      	}
+
+      	return ByteBuffer(readBuffer);
+      }
+
 
       bool nRFTransportProtocol::available(void){
         return physicalLayer->available();
@@ -296,6 +361,11 @@ namespace nRFTP {
                 			rtem.moreElements = routing.elementNum-1-i;
                 			rtem.setRoutingTableElement(routing.elements[i]);
                 			bb.reset();
+                			RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": route element:");
+                			RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": dest:");
+                			RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(rtem.routingTableElement.destinationAddress);
+                			RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": next:");
+                			RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(rtem.routingTableElement.nextHop);
                 			rtem.copyToByteBuffer(bb);
                 			//RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": s6");
                 			rtem.header.crc = 6;
