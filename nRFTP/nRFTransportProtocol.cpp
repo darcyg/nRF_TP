@@ -253,6 +253,11 @@ namespace nRFTP {
       // TODO ttl kezel�s
 
       void nRFTransportProtocol::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
+    	  uint8_t originalMessage[Message::SIZE];
+    	  for (int i=0; i<Message::SIZE; i++){
+    		  originalMessage[i] = bb.data[i];
+    	  }
+
     	    bool forwardToApp = true;
             switch (type){
             	case Message::TYPE_PING:
@@ -393,6 +398,7 @@ namespace nRFTP {
 
             if (forwardToApp){
               bb.reset();
+              bb.data = originalMessage;
               messageHandler->handleMessage(bb, type,isResponse);
             }
       }
