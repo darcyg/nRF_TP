@@ -273,6 +273,7 @@ namespace nRFTP {
 					  pingMessage.copyToByteBuffer(bb);
 					  RFLOGLN("Ping response sent!");
 					  RFDELAY(6);
+					  bb.reset();
 					  //RFLOG( "nRFTransportProtocol::handleMessage/"); RFLOG( __LINE__); RFLOGLN(": s2");
 					  sendMessage(bb, pingMessage.header.destAddress);
 					}
