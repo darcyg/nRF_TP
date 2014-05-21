@@ -135,7 +135,7 @@ namespace nRFTP {
       		physicalLayer->write((const void*) bb.data, Message::SIZE, routeMessage.header.destAddress);
       		bool routeDone = false;
       		while (!routeDone) {
-      			if (timeOut > 1000){
+      			if (timeOut > 2500){
       				return ByteBuffer(NULL);
       			}
       			RFDELAY(5);
@@ -162,7 +162,7 @@ namespace nRFTP {
       	Header header(bb);
       	bool responseArrived = false;
       	while (!responseArrived){
-  			if (timeOut > 1000){
+  			if (timeOut > 2500){
   				return ByteBuffer(NULL);
   			}
       		RFDELAY(5);
