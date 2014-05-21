@@ -64,7 +64,6 @@ namespace nRFTP {
 	}
 
 	bool Serial_PhysicalLayer::read( void* buf, uint8_t len ) {
-		std::cout<<"read..."<<std::endl;
 		__read(fd, buf, len);
 		return true;
 	}

@@ -27,7 +27,8 @@ namespace nRFTP {
         physicalLayer(_physicalLayer),
         messageHandler(0),
         waitingForPingResponse(0),
-        currentlyPingingAddress(0){
+        currentlyPingingAddress(0),
+        inSynchronousSend(false){
 #ifndef ARDUINO
 		  startTime = Util::millisSinceEpoch();
 #endif
@@ -113,15 +114,13 @@ namespace nRFTP {
       }
 
       ByteBuffer nRFTransportProtocol::sendMessageSynchronous(ByteBuffer& bb, uint16_t destAddress) {
-    	  RFLOG("sendsync begin: "); RFLOGLN(RFMILLIS());
+    	inSynchronousSend = true;
     	uint8_t msgBuff[Message::SIZE];
     	int timeOut = 0;
       	if (routing.isElement(destAddress)) {
-      		RFLOG("sendsync a: "); RFLOGLN(RFMILLIS());
       		routing.resetActivity(destAddress);
       		physicalLayer->write((const void*) bb.data, Message::SIZE, routing.getNextHopAddress(destAddress));
       	} else if (destAddress != broadcastAddress) {
-      		RFLOG("sendsync b: "); RFLOGLN(RFMILLIS());
       		for (int i = 0; i < Message::SIZE; i++) {
       			msgBuff[i] = bb.data[i];
       		}
@@ -135,7 +134,8 @@ namespace nRFTP {
       		physicalLayer->write((const void*) bb.data, Message::SIZE, routeMessage.header.destAddress);
       		bool routeDone = false;
       		while (!routeDone) {
-      			if (timeOut > 1000){
+      			if (timeOut > 2500){
+      				inSynchronousSend = false;
       				return ByteBuffer(NULL);
       			}
       			RFDELAY(5);
@@ -153,16 +153,15 @@ namespace nRFTP {
       			timeOut+=5;
       		}
       		physicalLayer->write((const void*)msgBuff, Message::SIZE, routing.getNextHopAddress(destAddress));
-      		RFLOG("sendsync c: "); RFLOGLN(RFMILLIS());
       	}
 
-      	RFLOG("sendsync d: "); RFLOGLN(RFMILLIS());
       	timeOut = 0;
       	bb.reset();
       	Header header(bb);
       	bool responseArrived = false;
       	while (!responseArrived){
-  			if (timeOut > 1000){
+  			if (timeOut > 2500){
+  				inSynchronousSend = false;
   				return ByteBuffer(NULL);
   			}
       		RFDELAY(5);
@@ -179,7 +178,7 @@ namespace nRFTP {
       		timeOut+=5;
       	}
 
-      	RFLOG("sendsync end: "); RFLOGLN(RFMILLIS());
+      	inSynchronousSend = false;
       	return ByteBuffer(readBuffer);
       }
 
@@ -193,31 +192,31 @@ namespace nRFTP {
       }
 
       void nRFTransportProtocol::run(void){
+    	if (!inSynchronousSend){
+			if(activity_counter >= 2)
+			{
+				routing.decreaseActivity();
+				activity_counter = 0;
+			}
 
-    	if(activity_counter >= 2)
-    	{
-    		routing.decreaseActivity();
-    		activity_counter = 0;
-    	}
+			if (waitingForPingResponse > 0){
+				checkForPingTimeOut();
+			}
 
-        if (waitingForPingResponse > 0){
-        	checkForPingTimeOut();
-        }
+			if (available()){
 
-        if (available()){
+				ByteBuffer bb(readBuffer);
+				   read(bb);
+				   Header header(bb);
+				  bb.reset();
+				  if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
+				  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
+				   } else {
+					   //RFLOG( "nRFTransportProtocol::run/"); RFLOG( __LINE__); RFLOGLN(": s1");
+					  sendMessage(bb, header.destAddress);
+				   }
 
-        	ByteBuffer bb(readBuffer);
-			   read(bb);
-			   Header header(bb);
-			  bb.reset();
-			  if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
-			  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
-			   } else {
-				   //RFLOG( "nRFTransportProtocol::run/"); RFLOG( __LINE__); RFLOGLN(": s1");
-				  sendMessage(bb, header.destAddress);
-			   }
-
-        }
+			}
         	/*
         	ByteBuffer bb(readBuffer);
         	read(bb);
@@ -242,11 +241,17 @@ namespace nRFTP {
         		sendMessage(bb, header.destAddress);
         	}
         }*/
+    	}
       }
 
       // TODO ttl kezel�s
 
       void nRFTransportProtocol::handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse){
+    	  uint8_t originalMessage[Message::SIZE];
+    	  for (int i=0; i<Message::SIZE; i++){
+    		  originalMessage[i] = bb.data[i];
+    	  }
+
     	    bool forwardToApp = true;
             switch (type){
             	case Message::TYPE_PING:
@@ -388,6 +393,7 @@ namespace nRFTP {
 
             if (forwardToApp){
               bb.reset();
+              bb.data = originalMessage;
               messageHandler->handleMessage(bb, type,isResponse);
             }
       }

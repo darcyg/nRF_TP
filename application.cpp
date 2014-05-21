@@ -18,7 +18,7 @@ using namespace nRFTP;
 #if GATEWAY_NODE==1
 	const uint16_t SELF_ADDRESS = 0;
 #else
-	const uint16_t SELF_ADDRESS = 22;
+	const uint16_t SELF_ADDRESS = 33;
 #endif
 
 const uint16_t GATEWAY_ADDRESS = 0;

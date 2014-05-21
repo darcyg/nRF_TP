@@ -55,6 +55,7 @@ namespace nRFTP {
       void handleMessage(nRFTP::ByteBuffer& bb, uint8_t type, bool isResponse);
       bool available(void);
       bool read( ByteBuffer& buf );
+      bool inSynchronousSend;
 
   };
 
