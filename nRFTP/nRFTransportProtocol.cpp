@@ -115,15 +115,12 @@ namespace nRFTP {
 
       ByteBuffer nRFTransportProtocol::sendMessageSynchronous(ByteBuffer& bb, uint16_t destAddress) {
     	inSynchronousSend = true;
-    	RFLOG("sendsync begin: "); RFLOGLN(RFMILLIS());
     	uint8_t msgBuff[Message::SIZE];
     	int timeOut = 0;
       	if (routing.isElement(destAddress)) {
-      		RFLOG("sendsync a: "); RFLOGLN(RFMILLIS());
       		routing.resetActivity(destAddress);
       		physicalLayer->write((const void*) bb.data, Message::SIZE, routing.getNextHopAddress(destAddress));
       	} else if (destAddress != broadcastAddress) {
-      		RFLOG("sendsync b: "); RFLOGLN(RFMILLIS());
       		for (int i = 0; i < Message::SIZE; i++) {
       			msgBuff[i] = bb.data[i];
       		}
@@ -156,10 +153,8 @@ namespace nRFTP {
       			timeOut+=5;
       		}
       		physicalLayer->write((const void*)msgBuff, Message::SIZE, routing.getNextHopAddress(destAddress));
-      		RFLOG("sendsync c: "); RFLOGLN(RFMILLIS());
       	}
 
-      	RFLOG("sendsync d: "); RFLOGLN(RFMILLIS());
       	timeOut = 0;
       	bb.reset();
       	Header header(bb);
@@ -183,7 +178,6 @@ namespace nRFTP {
       		timeOut+=5;
       	}
 
-      	RFLOG("sendsync end: "); RFLOGLN(RFMILLIS());
       	inSynchronousSend = false;
       	return ByteBuffer(readBuffer);
       }
