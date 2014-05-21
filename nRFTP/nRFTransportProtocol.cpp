@@ -27,7 +27,8 @@ namespace nRFTP {
         physicalLayer(_physicalLayer),
         messageHandler(0),
         waitingForPingResponse(0),
-        currentlyPingingAddress(0){
+        currentlyPingingAddress(0),
+        inSynchronousSend(false){
 #ifndef ARDUINO
 		  startTime = Util::millisSinceEpoch();
 #endif
@@ -113,7 +114,8 @@ namespace nRFTP {
       }
 
       ByteBuffer nRFTransportProtocol::sendMessageSynchronous(ByteBuffer& bb, uint16_t destAddress) {
-    	  RFLOG("sendsync begin: "); RFLOGLN(RFMILLIS());
+    	inSynchronousSend = true;
+    	RFLOG("sendsync begin: "); RFLOGLN(RFMILLIS());
     	uint8_t msgBuff[Message::SIZE];
     	int timeOut = 0;
       	if (routing.isElement(destAddress)) {
@@ -136,6 +138,7 @@ namespace nRFTP {
       		bool routeDone = false;
       		while (!routeDone) {
       			if (timeOut > 2500){
+      				inSynchronousSend = false;
       				return ByteBuffer(NULL);
       			}
       			RFDELAY(5);
@@ -163,6 +166,7 @@ namespace nRFTP {
       	bool responseArrived = false;
       	while (!responseArrived){
   			if (timeOut > 2500){
+  				inSynchronousSend = false;
   				return ByteBuffer(NULL);
   			}
       		RFDELAY(5);
@@ -180,6 +184,7 @@ namespace nRFTP {
       	}
 
       	RFLOG("sendsync end: "); RFLOGLN(RFMILLIS());
+      	inSynchronousSend = false;
       	return ByteBuffer(readBuffer);
       }
 
@@ -193,31 +198,31 @@ namespace nRFTP {
       }
 
       void nRFTransportProtocol::run(void){
+    	if (!inSynchronousSend){
+			if(activity_counter >= 2)
+			{
+				routing.decreaseActivity();
+				activity_counter = 0;
+			}
 
-    	if(activity_counter >= 2)
-    	{
-    		routing.decreaseActivity();
-    		activity_counter = 0;
-    	}
+			if (waitingForPingResponse > 0){
+				checkForPingTimeOut();
+			}
 
-        if (waitingForPingResponse > 0){
-        	checkForPingTimeOut();
-        }
+			if (available()){
 
-        if (available()){
+				ByteBuffer bb(readBuffer);
+				   read(bb);
+				   Header header(bb);
+				  bb.reset();
+				  if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
+				  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
+				   } else {
+					   //RFLOG( "nRFTransportProtocol::run/"); RFLOG( __LINE__); RFLOGLN(": s1");
+					  sendMessage(bb, header.destAddress);
+				   }
 
-        	ByteBuffer bb(readBuffer);
-			   read(bb);
-			   Header header(bb);
-			  bb.reset();
-			  if (header.destAddress == address || header.destAddress == broadcastAddress || header.getType() == Message::TYPE_ROUTE){
-			  handleMessage(bb,header.getType(), header.getFlag(Header::FLAG_IS_RESPONSE));
-			   } else {
-				   //RFLOG( "nRFTransportProtocol::run/"); RFLOG( __LINE__); RFLOGLN(": s1");
-				  sendMessage(bb, header.destAddress);
-			   }
-
-        }
+			}
         	/*
         	ByteBuffer bb(readBuffer);
         	read(bb);
@@ -242,6 +247,7 @@ namespace nRFTP {
         		sendMessage(bb, header.destAddress);
         	}
         }*/
+    	}
       }
 
       // TODO ttl kezel�s
