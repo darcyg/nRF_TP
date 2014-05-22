@@ -171,7 +171,8 @@ namespace nRFTP {
       			Header responseHeader(readbb);
       			if (responseHeader.destAddress == address
       					&& responseHeader.srcAddress == header.destAddress
-      					&& responseHeader.getType() == header.getType()) {
+      					&& responseHeader.getType() == header.getType()
+      					&& responseHeader.messageId == header.messageId) {
       				responseArrived = true;
       			}
       		}
