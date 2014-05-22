@@ -151,6 +151,7 @@ class SensorNetworkMessageHandler : public IMessageHandler {
 
 
 void setup() {
+	RFDELAY(1000);
 #if GATEWAY_NODE == 1
 	pLayer.begin();
 	Serial.begin(115200);
